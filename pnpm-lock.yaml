@@ -142,6 +142,19 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
+  packages/database:
+    dependencies:
+      dotenv:
+        specifier: ^16.4.1
+        version: 16.6.1
+      pg:
+        specifier: ^8.11.3
+        version: 8.16.3
+    devDependencies:
+      '@types/pg':
+        specifier: ^8.10.9
+        version: 8.15.6
+
 packages:
 
   /@anthropic-ai/sdk@0.20.9:

@@ -41,14 +41,29 @@ if (process.env.NODE_ENV !== 'test') {
 app.use(requestLogger);
 
 // Health check endpoint (before routes)
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
+app.get('/api/health', async (req, res) => {
+  const health = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
     version: '1.0.0',
-  });
+  };
+
+  // Check database health if available
+  try {
+    const db = require('./config/database');
+    const dbHealth = await db.healthCheck();
+    health.database = dbHealth;
+  } catch (error) {
+    health.database = {
+      status: 'unavailable',
+      error: error.message,
+    };
+  }
+
+  const statusCode = health.database?.status === 'healthy' ? 200 : 503;
+  res.status(statusCode).json(health);
 });
 
 // API info endpoint

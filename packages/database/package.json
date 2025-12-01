@@ -1,0 +1,19 @@
+{
+  "name": "@henrymo-ai/database",
+  "version": "1.0.0",
+  "description": "Database schema and migrations for HenryMo AI",
+  "main": "schema.sql",
+  "scripts": {
+    "schema": "psql -f schema.sql",
+    "migrate": "node scripts/migrate.js",
+    "seed": "node scripts/seed.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "dotenv": "^16.4.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.10.9"
+  }
+}
+
