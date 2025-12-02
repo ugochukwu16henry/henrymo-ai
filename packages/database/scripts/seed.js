@@ -24,21 +24,39 @@ const pool = new Pool({
 // Create super admin user
 const createSuperAdmin = async () => {
   try {
-    // Check if super admin already exists
+    // Check if super admin already exists (update if exists, create if not)
     const existingAdmin = await pool.query(
       'SELECT id FROM users WHERE email = $1',
-      ['admin@henrymo-ai.com']
+      ['ugochukwuhenry16@gmail.com']
     );
     
+    // Create password hash
+    const passwordHash = await bcrypt.hash('1995Mobuchi@.', 10);
+    
     if (existingAdmin.rows.length > 0) {
-      logger.info('Super admin already exists, skipping creation');
+      // Update existing super admin
+      await pool.query(
+        `UPDATE users 
+         SET password_hash = $1, 
+             name = $2,
+             role = $3,
+             subscription_tier = $4,
+             is_active = true,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE email = $5`,
+        [
+          passwordHash,
+          'Henry Maobughichi Ugochukwu',
+          'super_admin',
+          'enterprise',
+          'ugochukwuhenry16@gmail.com'
+        ]
+      );
+      logger.info('Super admin credentials updated successfully');
       return existingAdmin.rows[0].id;
     }
     
-    // Create password hash
-    const passwordHash = await bcrypt.hash('admin123!', 10);
-    
-    // Insert super admin
+    // Insert new super admin
     const result = await pool.query(
       `INSERT INTO users (
         id, email, password_hash, name, role, subscription_tier,
@@ -48,7 +66,7 @@ const createSuperAdmin = async () => {
       ) RETURNING id`,
       [
         uuidv4(),
-        'admin@henrymo-ai.com',
+        'ugochukwuhenry16@gmail.com',
         passwordHash,
         'Henry Maobughichi Ugochukwu',
         'super_admin',
@@ -60,7 +78,7 @@ const createSuperAdmin = async () => {
     );
     
     logger.info('Super admin created successfully');
-    logger.warn('Default password: admin123! - Please change this immediately!');
+    logger.info('Email: ugochukwuhenry16@gmail.com');
     
     return result.rows[0].id;
   } catch (error) {
