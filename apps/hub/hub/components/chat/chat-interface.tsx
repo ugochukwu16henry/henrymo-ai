@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { MessageList } from './message-list';
 import { InputArea } from './input-area';
 import { ConversationList } from './conversation-list';
+import { ConversationSettings } from './conversation-settings';
 import { conversationsApi, type Conversation, type Message } from '@/lib/api/conversations';
+import { aiApi } from '@/lib/api/ai';
 import { toast } from 'sonner';
 
 interface ChatInterfaceProps {
@@ -20,6 +22,9 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Load conversations
   useEffect(() => {
@@ -117,24 +122,118 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
     try {
       setIsSending(true);
 
+      // Get conversation to get provider/model settings
+      const conversation = conversations.find((c) => c.id === conversationId);
+      const provider = conversation?.provider || 'anthropic';
+      const model = conversation?.model || undefined;
+
       // Create user message
       const userMessageResponse = await conversationsApi.createMessage(conversationId, {
         role: 'user',
         content,
       });
 
-      if (userMessageResponse.success && userMessageResponse.data) {
-        const userMessage = userMessageResponse.data;
-        setMessages((prev) => [...prev, userMessage]);
-        
-        // Reload messages to get updated list
-        await loadMessages(conversationId);
-        // Reload conversations to update last message time
-        await loadConversations();
+      if (!userMessageResponse.success || !userMessageResponse.data) {
+        throw new Error('Failed to create user message');
       }
+
+      const userMessage = userMessageResponse.data;
+      setMessages((prev) => [...prev, userMessage]);
+
+      // Prepare messages for AI (convert to chat format)
+      const chatMessages = [
+        ...messages.map((msg) => ({
+          role: msg.role as 'user' | 'assistant' | 'system',
+          content: msg.content,
+        })),
+        { role: 'user' as const, content },
+      ];
+
+      // Create placeholder for assistant message
+      const assistantMessageId = `temp-${Date.now()}`;
+      const assistantMessage: Message = {
+        id: assistantMessageId,
+        conversationId,
+        role: 'assistant',
+        content: '',
+        tokensUsed: null,
+        cost: 0,
+        provider: null,
+        model: null,
+        metadata: {},
+        createdAt: new Date().toISOString(),
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+      setIsStreaming(true);
+      setStreamingMessageId(assistantMessageId);
+
+      let fullContent = '';
+
+      // Stream AI response
+      await aiApi.streamChat(
+        {
+          provider,
+          model,
+          messages: chatMessages,
+          conversationId,
+        },
+        (chunk: string) => {
+          fullContent += chunk;
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantMessageId
+                ? { ...msg, content: fullContent }
+                : msg
+            )
+          );
+        },
+        async (usage) => {
+          // Save assistant message to database
+          try {
+            const savedMessageResponse = await conversationsApi.createMessage(conversationId, {
+              role: 'assistant',
+              content: fullContent,
+              tokensUsed: usage.inputTokens + usage.outputTokens,
+              cost: null, // Will be calculated on backend
+              provider,
+              model: model || undefined,
+            });
+
+            if (savedMessageResponse.success && savedMessageResponse.data) {
+              // Replace temporary message with saved one
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantMessageId
+                    ? savedMessageResponse.data!
+                    : msg
+                )
+              );
+            } else {
+              // If save fails, keep the temporary message
+              console.error('Failed to save assistant message');
+            }
+          } catch (error) {
+            console.error('Error saving assistant message:', error);
+          }
+
+          setIsStreaming(false);
+          setStreamingMessageId(null);
+          await loadConversations();
+        },
+        (error) => {
+          toast.error(`AI Error: ${error}`);
+          setIsStreaming(false);
+          setStreamingMessageId(null);
+          // Remove failed message
+          setMessages((prev) => prev.filter((msg) => msg.id !== assistantMessageId));
+        }
+      );
     } catch (error) {
       toast.error('Failed to send message');
       console.error('Error sending message:', error);
+      setIsStreaming(false);
+      setStreamingMessageId(null);
     } finally {
       setIsSending(false);
     }
@@ -197,20 +296,62 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
 
       {/* Chat Area */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        {selectedConversationId && (
+          <div className="border-b border-gray-200 dark:border-gray-800 px-4 py-2 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {conversations.find((c) => c.id === selectedConversationId)?.title ||
+                  'New Conversation'}
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {conversations.find((c) => c.id === selectedConversationId)?.provider || 'anthropic'}
+                {' • '}
+                {conversations.find((c) => c.id === selectedConversationId)?.model || 'default'}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSettings(true)}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
         {/* Messages */}
         <MessageList
           messages={messages}
-          isLoading={isSending}
+          isLoading={isStreaming}
           onDeleteMessage={handleDeleteMessage}
         />
 
         {/* Input */}
         <InputArea
           onSend={handleSendMessage}
-          isLoading={isSending}
+          isLoading={isSending || isStreaming}
           disabled={!selectedConversationId && conversations.length === 0}
         />
       </div>
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <ConversationSettings
+          conversation={
+            selectedConversationId
+              ? conversations.find((c) => c.id === selectedConversationId) || null
+              : null
+          }
+          onUpdate={() => {
+            loadConversations();
+            if (selectedConversationId) {
+              loadMessages(selectedConversationId);
+            }
+          }}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
     </div>
   );
 }
