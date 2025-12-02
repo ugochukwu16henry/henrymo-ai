@@ -67,8 +67,20 @@ henrymo-ai/
 
 3. **Set up environment variables**
    ```bash
-   cp apps/api/.env.example apps/api/.env
-   cp apps/hub/hub/.env.example apps/hub/hub/.env.local
+   # Windows (PowerShell)
+   Copy-Item apps/api/env.example.txt apps/api/.env
+   
+   # Mac/Linux
+   cp apps/api/env.example.txt apps/api/.env
+   ```
+   
+   Or use the automated setup script:
+   ```powershell
+   # Windows
+   .\scripts\setup.ps1
+   
+   # Mac/Linux
+   ./scripts/setup.sh
    ```
 
 4. **Start development services**
@@ -152,8 +164,11 @@ henrymo-ai/
 
 - [28-Day Development Roadmap](./28_DAY_ROADMAP.md) - Complete development plan
 - [Complete Platform Documentation](./HENRYMO_AI_DOCUMENTATION.md) - Full feature documentation
-- API Documentation - (Coming soon)
-- Deployment Guide - (Coming soon)
+- [Development Setup Guide](./docs/DEVELOPMENT_SETUP.md) - Complete setup instructions
+- [Environment Variables Guide](./docs/ENVIRONMENT_VARIABLES.md) - Environment configuration reference
+- [API Documentation](./docs/API_DOCUMENTATION.md) - API endpoint reference
+- [Deployment Guide](./docs/DEPLOYMENT.md) - Production deployment instructions
+- [Contributing Guidelines](./docs/CONTRIBUTING.md) - How to contribute to the project
 
 ---
 
