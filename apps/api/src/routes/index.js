@@ -12,14 +12,14 @@ const router = express.Router();
 const authRoutes = require('./auth');
 const userRoutes = require('./users');
 const aiRoutes = require('./ai');
-// const conversationRoutes = require('./conversations'); // Stage 3
+const conversationRoutes = require('./conversations');
 // const adminRoutes = require('./admin'); // Stage 7
 
 // Register routes
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/ai', aiRoutes);
-// router.use('/conversations', conversationRoutes);
+router.use('/conversations', conversationRoutes);
 // router.use('/admin', adminRoutes);
 
 // API root route
@@ -31,6 +31,7 @@ router.get('/', (req, res) => {
       auth: '/api/auth',
       users: '/api/users',
       ai: '/api/ai',
+      conversations: '/api/conversations',
       health: '/api/health',
       info: '/api/info',
     },
