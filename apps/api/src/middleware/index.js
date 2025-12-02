@@ -22,5 +22,8 @@ module.exports = {
   // Validation
   validate: require('./validate').validate,
   commonSchemas: require('./validate').commonSchemas,
+  
+  // Ownership
+  ...require('./ownership'),
 };
 
