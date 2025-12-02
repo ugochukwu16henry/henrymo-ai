@@ -11,12 +11,14 @@ const router = express.Router();
 // Import route modules
 const authRoutes = require('./auth');
 const userRoutes = require('./users');
+const aiRoutes = require('./ai');
 // const conversationRoutes = require('./conversations'); // Stage 3
 // const adminRoutes = require('./admin'); // Stage 7
 
 // Register routes
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+router.use('/ai', aiRoutes);
 // router.use('/conversations', conversationRoutes);
 // router.use('/admin', adminRoutes);
 
@@ -28,6 +30,7 @@ router.get('/', (req, res) => {
     availableRoutes: {
       auth: '/api/auth',
       users: '/api/users',
+      ai: '/api/ai',
       health: '/api/health',
       info: '/api/info',
     },
