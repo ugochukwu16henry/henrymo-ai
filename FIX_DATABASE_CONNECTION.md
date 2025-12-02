@@ -1,116 +1,43 @@
-# Fix: Database Connection Error
+# Fix Database Connection Issue
 
-## The Problem
+## Problem
+Password authentication failed for user "postgres" when connecting from the API server.
 
-You tried to connect to PostgreSQL without specifying the user, which defaulted to "root". The container uses "postgres" as the database user.
+## Root Cause
+The PostgreSQL container might be configured with `md5` or `scram-sha-256` password authentication which requires specific connection string handling.
 
-**Error you saw:**
+## Solution Options
+
+### Option 1: Use Individual Connection Parameters (Recommended)
+
+Instead of DATABASE_URL, use individual environment variables that might work better:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=henmo_ai_dev
+DB_USER=postgres
+DB_PASSWORD=postgres
 ```
-psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "root" does not exist
-```
 
-## The Solution
+Then modify the database config to not use connectionString when these are provided.
 
-Always specify the user with `-U postgres` flag.
+### Option 2: Update Connection String Format
 
-## Correct Commands
+Try different connection string formats:
+- `postgresql://postgres:postgres@localhost:5432/henmo_ai_dev`
+- `postgresql://postgres:postgres@127.0.0.1:5432/henmo_ai_dev`
+- `postgres://postgres:postgres@localhost:5432/henmo_ai_dev`
 
-### Method 1: Use Migration Script (RECOMMENDED - Easiest)
+### Option 3: Reset PostgreSQL Password
 
-From your project root:
-
+Reset the PostgreSQL password to match:
 ```bash
-cd packages/database
-node scripts/migrate.js schema
+docker-compose exec postgres psql -U postgres -c "ALTER USER postgres PASSWORD 'postgres';"
 ```
 
-This script:
-- Connects from your host machine
-- Uses the DATABASE_URL from your .env file
-- Runs the complete schema automatically
+### Option 4: Update pg_hba.conf
 
-**Make sure you have:**
-1. Created `apps/api/.env` file with:
-   ```env
-   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/henmo_ai_dev
-   ```
+The pg_hba.conf might need to allow password authentication from localhost.
 
-2. Installed dependencies:
-   ```bash
-   cd packages/database
-   pnpm install
-   ```
-
-### Method 2: Connect to PostgreSQL Correctly
-
-If you want to connect directly:
-
-```bash
-# Connect to PostgreSQL (note the -U postgres flag!)
-docker-compose exec postgres psql -U postgres -d henmo_ai_dev
-```
-
-Then inside psql, you can run:
-```sql
-\i /tmp/schema.sql  -- But first you need to copy the file
-```
-
-### Method 3: Run Schema from Host
-
-```bash
-# Copy schema file into container
-docker cp packages/database/schema.sql henmo-ai-postgres:/tmp/schema.sql
-
-# Run it
-docker-compose exec postgres psql -U postgres -d henmo_ai_dev -f /tmp/schema.sql
-```
-
-### Method 4: Pipe Schema Directly (PowerShell)
-
-```powershell
-Get-Content packages/database/schema.sql | docker-compose exec -T postgres psql -U postgres -d henmo_ai_dev
-```
-
-## Quick Fix Right Now
-
-Run these commands in order:
-
-```bash
-# 1. Make sure container is running
-docker-compose up -d postgres
-
-# 2. Wait a few seconds for it to start
-# Check logs: docker-compose logs postgres
-
-# 3. Use the migration script (easiest way)
-cd packages/database
-node scripts/migrate.js schema
-
-# 4. Seed initial data
-node scripts/seed.js
-```
-
-## Verify It Worked
-
-```bash
-# Check tables were created
-docker-compose exec postgres psql -U postgres -d henmo_ai_dev -c "\dt"
-
-# Check super admin was created (after seeding)
-docker-compose exec postgres psql -U postgres -d henmo_ai_dev -c "SELECT email, role FROM users WHERE role='super_admin';"
-```
-
-## Remember
-
-- ✅ Use `-U postgres` when connecting
-- ✅ User is "postgres", not "root"
-- ✅ Database is "henmo_ai_dev"
-- ✅ Password is "postgres" (from docker-compose.yml)
-
-## Still Having Issues?
-
-Check:
-1. Container is running: `docker-compose ps`
-2. Container logs: `docker-compose logs postgres`
-3. Database exists: `docker-compose exec postgres psql -U postgres -l | grep henmo_ai_dev`
-
+Let me try Option 3 first - resetting the password, then Option 1 - using individual parameters.

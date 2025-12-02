@@ -10,23 +10,56 @@ const logger = require('../utils/logger');
 
 // Parse DATABASE_URL or use individual components
 const getDatabaseConfig = () => {
-  if (process.env.DATABASE_URL) {
+  // If individual DB variables are set, use those (more reliable)
+  if (process.env.DB_HOST || process.env.DB_USER) {
     return {
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432', 10),
+      database: process.env.DB_NAME || 'henmo_ai_dev',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      max: 20, // Maximum number of clients in the pool
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
     };
   }
 
-  // Fallback to individual environment variables
+  // Otherwise try DATABASE_URL
+  if (process.env.DATABASE_URL) {
+    // Parse DATABASE_URL manually for better control
+    try {
+      const url = new URL(process.env.DATABASE_URL);
+      return {
+        host: url.hostname || 'localhost',
+        port: parseInt(url.port || '5432', 10),
+        database: url.pathname.slice(1) || 'henmo_ai_dev', // Remove leading '/'
+        user: url.username || 'postgres',
+        password: url.password || 'postgres',
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      };
+    } catch (error) {
+      // Fallback to connection string if URL parsing fails
+      return {
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        connectionTimeoutMillis: 5000,
+      };
+    }
+  }
+
+  // Final fallback
   return {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
-    database: process.env.DB_NAME || 'henmo_ai_dev',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'postgres',
-    max: 20, // Maximum number of clients in the pool
+    host: 'localhost',
+    port: 5432,
+    database: 'henmo_ai_dev',
+    user: 'postgres',
+    password: 'postgres',
+    max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 5000,
   };
 };
 
