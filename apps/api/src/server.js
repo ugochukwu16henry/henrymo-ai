@@ -10,22 +10,29 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const config = require('./config');
 const { errorHandler } = require('./middleware/errorHandler');
 const { requestLogger } = require('./middleware/logging');
+const { apiLimiter } = require('./middleware/rateLimiter');
+const { securityHeaders, requestId, extractIP } = require('./middleware/security');
 const routes = require('./routes');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = config.port;
 
-// Security middleware
+// Security middleware (order matters!)
 app.use(helmet());
+app.use(securityHeaders);
+app.use(requestId);
+app.use(extractIP);
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: config.frontendUrl,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
+  exposedHeaders: ['X-Request-ID'],
 };
 
 app.use(cors(corsOptions));
@@ -35,10 +42,13 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Request logging
-if (process.env.NODE_ENV !== 'test') {
+if (config.nodeEnv !== 'test') {
   app.use(morgan('combined'));
 }
 app.use(requestLogger);
+
+// Rate limiting (apply to all routes)
+app.use('/api', apiLimiter);
 
 // Health check endpoint (before routes)
 app.get('/api/health', async (req, res) => {
@@ -46,8 +56,9 @@ app.get('/api/health', async (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
+    environment: config.nodeEnv,
     version: '1.0.0',
+    requestId: req.id,
   };
 
   // Check database health if available

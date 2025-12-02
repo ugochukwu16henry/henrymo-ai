@@ -18,8 +18,18 @@ const logger = {
   debug: (msg, meta) => console.log(`[DEBUG] ${msg}`, meta || ''),
 };
 
+// Get database connection string with fallback
+const getDatabaseUrl = () => {
+  if (process.env.DATABASE_URL) {
+    return process.env.DATABASE_URL;
+  }
+  
+  // Fallback to default connection for local Docker setup
+  return 'postgresql://postgres:postgres@localhost:5432/henmo_ai_dev';
+};
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/henmo_ai_dev',
+  connectionString: getDatabaseUrl(),
 });
 
 // Ensure migrations table exists
