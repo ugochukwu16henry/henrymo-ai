@@ -25,7 +25,7 @@ const getDatabaseUrl = () => {
   }
   
   // Fallback to default connection for local Docker setup
-  return 'postgresql://postgres:postgres@localhost:5432/henmo_ai_dev';
+  return 'postgresql://postgres:postgres@localhost:5433/henmo_ai_dev';
 };
 
 const pool = new Pool({

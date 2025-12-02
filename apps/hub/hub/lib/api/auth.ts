@@ -9,13 +9,13 @@ export interface User {
   email: string;
   name: string;
   role: string;
-  subscription_tier: string;
-  is_email_verified: boolean;
-  is_active: boolean;
-  country_code?: string;
-  avatar_url?: string;
-  created_at: string;
-  updated_at: string;
+  subscriptionTier: string;
+  isEmailVerified: boolean;
+  isActive: boolean;
+  countryCode?: string;
+  avatarUrl?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface LoginCredentials {
@@ -54,7 +54,14 @@ export const authApi = {
    * Get current user
    */
   getMe: async () => {
-    return api.get<User>('/api/auth/me', true);
+    const response = await api.get<{ user: User }>('/api/auth/me', true);
+    if (response.success) {
+      return {
+        success: true as const,
+        data: response.data.user,
+      };
+    }
+    return response;
   },
 
   /**

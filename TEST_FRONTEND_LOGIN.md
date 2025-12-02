@@ -1,313 +1,156 @@
-# 🧪 Frontend Login Testing Guide
+# Frontend Login Testing Guide
 
-**Purpose:** Test the frontend authentication system before Day 8
+## Prerequisites
 
----
+1. **API Server must be running** on `http://localhost:4000`
+2. **Database must be running** (PostgreSQL via Docker)
+3. **Frontend environment configured**
 
-## 📋 Prerequisites
+## Setup Steps
 
-1. ✅ API server is running (`cd apps/api && pnpm run dev`)
-2. ✅ Database is running (`docker-compose ps postgres`)
-3. ✅ Super admin credentials are updated
-4. ✅ Frontend dependencies installed
-
----
-
-## 🚀 Step 1: Install Frontend Dependencies
+### 1. Start the API Server
 
 ```powershell
-cd apps/hub/hub
-pnpm install
-```
+# Navigate to API directory
+cd apps/api
 
-**Expected:** Dependencies should install successfully
-
----
-
-## 🚀 Step 2: Setup Environment Variables
-
-Create `.env.local` file:
-
-```powershell
-cd apps/hub/hub
-Copy-Item env.example .env.local
-```
-
-Or create manually:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:4000
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
----
-
-## 🚀 Step 3: Start Frontend Development Server
-
-```powershell
-cd apps/hub/hub
+# Start the server (make sure .env file exists with database credentials)
 pnpm dev
 ```
 
-**Expected Output:**
+The API server should start on `http://localhost:4000`
+
+### 2. Verify API is Running
+
+```powershell
+# Test health endpoint
+curl http://localhost:4000/api/health
+
+# Or in PowerShell
+Invoke-WebRequest -Uri http://localhost:4000/api/health
 ```
-  ▲ Next.js 14.2.5
-  - Local:        http://localhost:3000
-  - ready started server on 0.0.0.0:3000
+
+### 3. Create a Test User (if needed)
+
+You can either:
+- Use an existing user from the database
+- Register a new user via the frontend
+- Or create one via API:
+
+```powershell
+$body = @{
+    email = "test@example.com"
+    password = "Test123!@#"
+    name = "Test User"
+} | ConvertTo-Json
+
+Invoke-WebRequest -Uri http://localhost:4000/api/auth/register -Method POST -Body $body -ContentType "application/json"
 ```
 
----
-
-## 🧪 Step 4: Test Login Page
-
-### 4.1 Navigate to Login Page
-
-Open browser and go to: **http://localhost:3000/login**
-
-**Expected:**
-- ✅ Login page loads
-- ✅ Email and Password input fields visible
-- ✅ "Forgot password?" link present
-- ✅ "Sign up" link present
-- ✅ "Log in" button visible
-
----
-
-### 4.2 Test with Super Admin Credentials
-
-**Login Credentials:**
-- **Email:** `ugochukwuhenry16@gmail.com`
-- **Password:** `1995Mobuchi@.`
-
-**Steps:**
-1. Enter email address
-2. Enter password
-3. Click "Log in" button
-
-**Expected Results:**
-- ✅ Form validates correctly
-- ✅ Loading indicator shows
-- ✅ Success toast notification appears
-- ✅ Redirects to `/dashboard`
-- ✅ Dashboard shows user information
-- ✅ Email displayed in header
-- ✅ Logout button visible
-
----
-
-### 4.3 Test Error Handling
-
-**Test 1: Invalid Credentials**
-- Email: `wrong@email.com`
-- Password: `WrongPassword123!`
-
-**Expected:**
-- ❌ Error message appears
-- ❌ "Login failed" or similar error
-- ❌ Stays on login page
-
-**Test 2: Empty Fields**
-- Leave email or password empty
-
-**Expected:**
-- ❌ Validation error messages appear
-- ❌ Submit button disabled or shows error
-- ❌ Form doesn't submit
-
-**Test 3: Invalid Email Format**
-- Email: `notanemail`
-- Password: `AnyPassword123!`
-
-**Expected:**
-- ❌ "Invalid email address" error
-- ❌ Form doesn't submit
-
----
-
-## 🧪 Step 5: Test Registration
-
-### 5.1 Navigate to Register Page
-
-Go to: **http://localhost:3000/register**
-
-**Expected:**
-- ✅ Registration form loads
-- ✅ All fields visible (Name, Email, Password, Confirm Password, Country Code)
-
----
-
-### 5.2 Test Registration Form
-
-**Test Valid Registration:**
-- Name: `Test User`
-- Email: `testuser_$(Get-Date -Format 'yyyyMMddHHmmss')@example.com`
-- Password: `TestPass123!`
-- Confirm Password: `TestPass123!`
-- Country Code: `US` (optional)
-
-**Expected:**
-- ✅ Form validates correctly
-- ✅ Registration successful
-- ✅ Redirects to dashboard
-- ✅ User logged in automatically
-
-**Test Password Validation:**
-- Password: `weak` (too short)
-
-**Expected:**
-- ❌ Password validation error
-- ❌ Error message about password requirements
-
-**Test Password Mismatch:**
-- Password: `TestPass123!`
-- Confirm Password: `Different123!`
-
-**Expected:**
-- ❌ "Passwords don't match" error
-
----
-
-## 🧪 Step 6: Test Dashboard
-
-### 6.1 Verify Dashboard Access
-
-After successful login, verify:
-
-**Expected:**
-- ✅ Dashboard page loads
-- ✅ User name displayed: "Welcome, [Name]!"
-- ✅ User email displayed
-- ✅ User role displayed
-- ✅ Subscription tier displayed
-- ✅ Logout button functional
-
----
-
-### 6.2 Test Logout
-
-Click "Logout" button
-
-**Expected:**
-- ✅ Success toast notification
-- ✅ Redirects to `/login`
-- ✅ Cannot access dashboard (redirects back to login)
-
----
-
-### 6.3 Test Protected Routes
-
-Try accessing dashboard directly without login:
-- Go to: **http://localhost:3000/dashboard**
-
-**Expected:**
-- ✅ Redirects to `/login`
-- ✅ Cannot access dashboard
-
----
-
-## 🧪 Step 7: Test Forgot Password
-
-### 7.1 Navigate to Forgot Password
-
-Go to: **http://localhost:3000/forgot-password`
-
-**Expected:**
-- ✅ Forgot password form loads
-- ✅ Email input field visible
-- ✅ "Send reset link" button present
-
----
-
-### 7.2 Test Password Reset Request
-
-Enter valid email: `ugochukwuhenry16@gmail.com`
-
-**Expected:**
-- ✅ Form submits successfully
-- ✅ Success message appears
-- ✅ Check server logs for reset token (development mode)
-
----
-
-## 🔍 Troubleshooting
-
-### Issue: Frontend won't start
-
-**Possible Causes:**
-1. Dependencies not installed
-   - **Fix:** Run `pnpm install` in `apps/hub/hub`
-
-2. Port 3000 already in use
-   - **Fix:** Kill process on port 3000 or use different port
-
-3. Environment variables missing
-   - **Fix:** Create `.env.local` file
-
----
-
-### Issue: Login fails with 500 error
-
-**Possible Causes:**
-1. API server not running
-   - **Fix:** Start API server: `cd apps/api && pnpm run dev`
-
-2. Database connection issue
-   - **Fix:** Check database is running: `docker-compose ps postgres`
-
-3. Wrong API URL
-   - **Fix:** Check `.env.local` has correct `NEXT_PUBLIC_API_URL`
-
----
-
-### Issue: CORS errors
-
-**Possible Causes:**
-1. API CORS not configured for frontend URL
-   - **Fix:** Check `apps/api/src/server.js` CORS configuration
-
----
-
-### Issue: Cannot connect to API
-
-**Possible Causes:**
-1. API running on different port
-   - **Fix:** Verify API is on port 4000 or update `NEXT_PUBLIC_API_URL`
-
-2. Network connectivity
-   - **Fix:** Check firewall settings
-
----
-
-## ✅ Test Checklist
-
-- [ ] Frontend dependencies installed
-- [ ] Environment variables configured
-- [ ] Frontend server starts successfully
-- [ ] Login page loads correctly
-- [ ] Login with super admin credentials works
-- [ ] Invalid credentials show error
-- [ ] Empty fields show validation errors
-- [ ] Registration form works
-- [ ] Dashboard loads after login
-- [ ] User information displays correctly
-- [ ] Logout works
-- [ ] Protected routes redirect to login
-- [ ] Forgot password form works
-
----
-
-## 📊 Expected Test Results
-
-### Success Criteria:
-- ✅ All login tests pass
-- ✅ Registration works
-- ✅ Dashboard accessible after login
-- ✅ Protected routes work correctly
-- ✅ Error handling works as expected
-
----
-
-**Created by:** Auto (AI Assistant)  
-**For:** Henry Maobughichi Ugochukwu (Super Admin)  
-**Date:** December 2, 2025
-
+### 4. Start the Frontend
+
+```powershell
+# Navigate to frontend directory
+cd apps/hub/hub
+
+# Create .env.local if it doesn't exist
+# Copy from env.example or create with:
+# NEXT_PUBLIC_API_URL=http://localhost:4000
+# NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Install dependencies (if not already done)
+pnpm install
+
+# Start the development server
+pnpm dev
+```
+
+The frontend should start on `http://localhost:3000`
+
+### 5. Test Login Flow
+
+1. **Open Browser**: Navigate to `http://localhost:3000`
+2. **Redirect**: You should be redirected to `/login` if not authenticated
+3. **Login Form**: Enter your credentials:
+   - Email: `test@example.com` (or your test user email)
+   - Password: `Test123!@#` (or your test user password)
+4. **Submit**: Click "Log in" button
+5. **Expected Result**: 
+   - Success toast notification
+   - Redirect to `/dashboard`
+   - User information displayed
+
+## Testing Checklist
+
+- [ ] API server is running on port 4000
+- [ ] Database connection is working
+- [ ] Frontend server is running on port 3000
+- [ ] Can access login page at `http://localhost:3000/login`
+- [ ] Login form displays correctly
+- [ ] Can submit login form
+- [ ] Successful login redirects to dashboard
+- [ ] Token is stored in localStorage
+- [ ] User data is displayed on dashboard
+- [ ] Logout functionality works
+
+## Troubleshooting
+
+### API Server Not Running
+- Check if port 4000 is already in use
+- Verify `.env` file exists in `apps/api/`
+- Check database connection in API logs
+
+### Frontend Not Connecting to API
+- Verify `NEXT_PUBLIC_API_URL=http://localhost:4000` in `.env.local`
+- Check browser console for CORS errors
+- Verify API CORS configuration allows `http://localhost:3000`
+
+### Login Fails
+- Check API server logs for errors
+- Verify user exists in database
+- Check password is correct
+- Verify JWT_SECRET is set in API `.env`
+
+### CORS Errors
+- Ensure `FRONTEND_URL=http://localhost:3000` in API `.env`
+- Check API server CORS configuration
+
+## Manual API Test
+
+Test login directly via API:
+
+```powershell
+$body = @{
+    email = "test@example.com"
+    password = "Test123!@#"
+} | ConvertTo-Json
+
+$response = Invoke-WebRequest -Uri http://localhost:4000/api/auth/login -Method POST -Body $body -ContentType "application/json"
+$response.Content
+```
+
+Expected response:
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "user": {
+      "id": "...",
+      "email": "test@example.com",
+      "name": "Test User",
+      "role": "user",
+      ...
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+## Next Steps
+
+After successful login test:
+- Test registration flow
+- Test protected routes
+- Test logout functionality
+- Continue with Day 8: User Dashboard & Profile
