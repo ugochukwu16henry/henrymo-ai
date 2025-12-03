@@ -156,17 +156,19 @@ export default function StreetsPage() {
               </p>
             </div>
             <div className="flex gap-2">
-          <Link href="/dashboard/streets/upload">
-            <Button variant="outline">
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Contribution
-            </Button>
-          </Link>
-          <Link href="/dashboard/streets/contributions">
-            <Button variant="outline">
-              My Contributions
-            </Button>
-          </Link>
+              <Link href="/dashboard/streets/upload">
+                <Button variant="outline">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Contribution
+                </Button>
+              </Link>
+              <Link href="/dashboard/streets/contributions">
+                <Button variant="outline">
+                  My Contributions
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -360,7 +362,6 @@ export default function StreetsPage() {
             )}
           </>
         )}
-      </div>
       </div>
     </div>
   );
