@@ -2,7 +2,7 @@
   "buildCommand": "cd ../.. && pnpm install --filter @henrymo-ai/hub... && pnpm --filter @henrymo-ai/hub build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "cd ../.. && pnpm install --filter @henrymo-ai/hub...",
+  "installCommand": "cd ../.. && pnpm install --no-frozen-lockfile --filter @henrymo-ai/hub...",
   "devCommand": "pnpm dev",
   "rewrites": [
     {
