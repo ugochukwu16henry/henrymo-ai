@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Wand2, Loader2, Download, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -114,9 +114,9 @@ export function ImageGenerator() {
   };
 
   // Load recent images on mount
-  useState(() => {
+  useEffect(() => {
     loadRecentImages();
-  });
+  }, []);
 
   return (
     <div className="space-y-6">
