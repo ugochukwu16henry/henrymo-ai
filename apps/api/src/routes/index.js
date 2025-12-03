@@ -26,7 +26,10 @@ const adminRoutes = require('./admin'); // Stage 7
 const paymentRoutes = require('./payment'); // Stage 7
 const financialRoutes = require('./financial'); // Stage 7
 const analyticsRoutes = require('./analytics'); // Stage 7
-const emailRoutes = require('./email'); // Stage 7
+const emailRoutes = require('./email');
+const motherboardRoutes = require('./motherboard');
+const selfImprovementRoutes = require('./selfImprovement');
+const superAdminControlRoutes = require('./superAdminControl'); // Stage 7
 
 // Register routes
 router.use('/auth', authRoutes);
