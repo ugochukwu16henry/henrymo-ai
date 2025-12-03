@@ -17,22 +17,26 @@ import {
   Image,
   Map,
   LogOut,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'ChatBoss', href: '/dashboard/chat', icon: MessageSquare },
-  { name: 'Media Studio', href: '/dashboard/media', icon: Image },
-  { name: 'Streets', href: '/dashboard/streets', icon: Map },
-  { name: 'Profile', href: '/dashboard/profile', icon: User },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-];
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const { user } = useAuthStore();
+
+  const isAdmin = user?.role === 'super_admin' || user?.role === 'admin';
+
+  const navigation = [
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'ChatBoss', href: '/dashboard/chat', icon: MessageSquare },
+    { name: 'Media Studio', href: '/dashboard/media', icon: Image },
+    { name: 'Streets', href: '/dashboard/streets', icon: Map },
+    ...(isAdmin ? [{ name: 'Admin', href: '/dashboard/admin', icon: Shield }] : []),
+    { name: 'Profile', href: '/dashboard/profile', icon: User },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

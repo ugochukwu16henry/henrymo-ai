@@ -17,6 +17,16 @@ const { apiLimiter } = require('./middleware/rateLimiter');
 const { securityHeaders, requestId, extractIP } = require('./middleware/security');
 const routes = require('./routes');
 
+// Initialize email scheduler
+if (process.env.NODE_ENV !== 'test') {
+  try {
+    const emailScheduler = require('./jobs/emailScheduler');
+    emailScheduler.start();
+  } catch (error) {
+    console.warn('Email scheduler not started:', error.message);
+  }
+}
+
 const app = express();
 const PORT = config.port;
 

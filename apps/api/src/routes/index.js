@@ -25,6 +25,8 @@ const verificationsRoutes = require('./verifications'); // Stage 6
 const adminRoutes = require('./admin'); // Stage 7
 const paymentRoutes = require('./payment'); // Stage 7
 const financialRoutes = require('./financial'); // Stage 7
+const analyticsRoutes = require('./analytics'); // Stage 7
+const emailRoutes = require('./email'); // Stage 7
 
 // Register routes
 router.use('/auth', authRoutes);
@@ -43,6 +45,8 @@ router.use('/content', verificationsRoutes); // Stage 6 - verifications routes
 router.use('/admin', adminRoutes); // Stage 7
 router.use('/payment', paymentRoutes); // Stage 7
 router.use('/financial', financialRoutes); // Stage 7
+router.use('/analytics', analyticsRoutes); // Stage 7
+router.use('/email', emailRoutes); // Stage 7
 
 // API root route
 router.get('/', (req, res) => {
@@ -66,6 +70,8 @@ router.get('/', (req, res) => {
       admin: '/api/admin',
       payment: '/api/payment',
       financial: '/api/financial',
+      analytics: '/api/analytics',
+      email: '/api/email',
       health: '/api/health',
       info: '/api/info',
     },

@@ -195,9 +195,9 @@ HenryMo AI serves multiple purposes:
 
 **Key Files:**
 
-- `apps/api/src/controllers/admin.controller.js` - Admin operations
-- `apps/api/src/routes/admin.routes.js` - Admin API routes
-- `apps/api/src/middleware/auth.middleware.js` - Role-based authentication
+- `apps/api/src/services/adminService.js` - Admin operations
+- `apps/api/src/routes/admin.js` - Admin API routes
+- `apps/api/src/middleware/auth.js` - Role-based authentication
 - `apps/hub/hub/app/(dashboard)/admin/` - Admin dashboard pages
 
 ### 7. Financial System
@@ -213,10 +213,11 @@ HenryMo AI serves multiple purposes:
 
 **Key Files:**
 
-- `apps/api/src/services/payment.service.js` - Payment processing
-- `apps/api/src/services/financial.service.js` - Financial operations
-- `apps/api/src/controllers/payment.controller.js` - Payment endpoints
-- `apps/api/src/controllers/financial.controller.js` - Financial dashboard
+- `apps/api/src/services/paymentService.js` - Payment processing (Stripe integration)
+- `apps/api/src/services/subscriptionService.js` - Subscription management
+- `apps/api/src/services/invoiceService.js` - Invoice generation
+- `apps/api/src/routes/payment.js` - Payment endpoints
+- `apps/api/src/routes/financial.js` - Financial dashboard
 
 ### 8. Analytics & Monitoring
 
