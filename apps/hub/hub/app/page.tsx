@@ -73,6 +73,27 @@ export default function LandingPage() {
       color: 'text-red-600 dark:text-red-400',
       bgColor: 'bg-red-50 dark:bg-red-900/20',
     },
+    {
+      icon: Sparkles,
+      title: 'Self-Improving Architecture',
+      description: 'AI system that intelligently evaluates and upgrades its own codebase. Continuous learning and optimization with Super Admin oversight.',
+      color: 'text-indigo-600 dark:text-indigo-400',
+      bgColor: 'bg-indigo-50 dark:bg-indigo-900/20',
+    },
+    {
+      icon: Zap,
+      title: 'Central Motherboard System',
+      description: 'Core control system connecting all modules. Monitors performance, manages updates, and ensures mission alignment across the platform.',
+      color: 'text-cyan-600 dark:text-cyan-400',
+      bgColor: 'bg-cyan-50 dark:bg-cyan-900/20',
+    },
+    {
+      icon: Rocket,
+      title: 'Developer Console',
+      description: 'Complete integrated console with terminal, real-time logs, code editor, module management, and AI performance controls.',
+      color: 'text-pink-600 dark:text-pink-400',
+      bgColor: 'bg-pink-50 dark:bg-pink-900/20',
+    },
   ];
 
   const benefits = [
@@ -80,6 +101,12 @@ export default function LandingPage() {
     'Reduce bugs and security vulnerabilities automatically',
     'Generate professional media content in minutes',
     'Build persistent AI knowledge bases',
+    'Self-improving architecture that evolves with your needs',
+    'Central motherboard system for complete platform control',
+    'Super Admin oversight with approval workflow',
+    'Complete developer console integrated into platform',
+    'Auto-monitoring and self-diagnosis capabilities',
+    'Training mode for custom AI capabilities',
     'Scale from individual developers to enterprise teams',
     'Multi-provider AI support (Anthropic, OpenAI)',
     'Comprehensive analytics and cost tracking',
@@ -90,7 +117,7 @@ export default function LandingPage() {
     { value: '40+', label: 'Programming Languages' },
     { value: '2+', label: 'AI Providers' },
     { value: '100+', label: 'AI Features' },
-    { value: '24/7', label: 'Support' },
+    { value: 'Self-Improving', label: 'Architecture' },
   ];
 
   return (
