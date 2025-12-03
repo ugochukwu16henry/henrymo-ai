@@ -11,6 +11,7 @@ const { authenticate } = require('../middleware/auth');
 const aiService = require('../services/ai/ai-service');
 const costTrackingService = require('../services/ai/cost-tracking-service');
 const semanticSearchService = require('../services/semanticSearchService');
+const chatbotSocialIntegration = require('../services/ai/chatbot-social-integration');
 const logger = require('../utils/logger');
 const { z } = require('zod');
 const { validate } = require('../middleware/validate');
@@ -190,10 +191,34 @@ router.post(
         }
       };
 
-      try {
-        // Get relevant memories for context (with timeout)
-        let enhancedMessages = [...messages];
-        let relevantMemories = [];
+        try {
+          // Check if this is a social media command
+          const lastMessage = messages[messages.length - 1]?.content || '';
+          const isSocialCommand = this.isSocialMediaCommand(lastMessage);
+          
+          if (isSocialCommand) {
+            // Handle social media command directly
+            const socialResult = await chatbotSocialIntegration.handleSocialCommand(
+              req.user.id,
+              lastMessage,
+              this.extractSocialParams(lastMessage)
+            );
+            
+            const responseText = chatbotSocialIntegration.generateResponse(
+              chatbotSocialIntegration.parseCommand(lastMessage),
+              socialResult
+            );
+            
+            // Send response as stream
+            res.write(`data: ${JSON.stringify({ type: 'chunk', content: responseText })}\n\n`);
+            res.write(`data: ${JSON.stringify({ type: 'done', usage: { inputTokens: 0, outputTokens: 0 } })}\n\n`);
+            res.end();
+            return;
+          }
+
+          // Get relevant memories for context (with timeout)
+          let enhancedMessages = [...messages];
+          let relevantMemories = [];
 
         try {
           // Build context from recent messages
