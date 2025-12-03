@@ -147,7 +147,7 @@ class ContributionService {
    */
   async getContributionById(id) {
     try {
-      const result = await pool.query(
+      const result = await db.query(
         `SELECT c.id, c.user_id, c.street_id, c.latitude, c.longitude, c.street_name, 
                 c.notes, c.status, c.reward_amount, c.reward_paid, c.verification_score,
                 c.metadata, c.created_at, c.updated_at, c.verified_at,
@@ -249,7 +249,7 @@ class ContributionService {
 
       // Get contributions
       values.push(limit, offset);
-      const result = await pool.query(
+      const result = await db.query(
         `SELECT c.id, c.user_id, c.street_id, c.latitude, c.longitude, c.street_name, 
                 c.notes, c.status, c.reward_amount, c.reward_paid, c.verification_score,
                 c.metadata, c.created_at, c.updated_at, c.verified_at,
@@ -338,7 +338,7 @@ class ContributionService {
       }
 
       values.push(id);
-      const result = await pool.query(
+      const result = await db.query(
         `UPDATE contributions 
          SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
          WHERE id = $${paramIndex}
