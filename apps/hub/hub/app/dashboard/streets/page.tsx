@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, MapPin, Globe, Building2, Map, Plus } from 'lucide-react';
+import { Search, MapPin, Globe, Building2, Map, Plus, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import {
   type City,
 } from '@/lib/api/streets';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 export default function StreetsPage() {
   const [streets, setStreets] = useState<Street[]>([]);
@@ -142,13 +143,28 @@ export default function StreetsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          Streets Platform
-        </h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Discover and contribute to the global street database
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Streets Platform
+          </h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Discover and contribute to the global street database
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/dashboard/streets/upload">
+            <Button variant="outline">
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Contribution
+            </Button>
+          </Link>
+          <Link href="/dashboard/streets/contributions">
+            <Button variant="outline">
+              My Contributions
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Search and Filters */}
