@@ -16,7 +16,7 @@ const config = require('../config');
  * Register a new user
  */
 const register = async (userData) => {
-  const { email, password, name, countryCode } = userData;
+  const { email, password, name, countryCode, role } = userData;
 
   try {
     // Check if user already exists
@@ -46,7 +46,7 @@ const register = async (userData) => {
         email.toLowerCase().trim(),
         passwordHash,
         name.trim(),
-        'user', // Default role
+        role || 'user', // Use provided role or default to 'user'
         'free', // Default subscription tier
         false, // Email not verified by default
         true, // Active by default

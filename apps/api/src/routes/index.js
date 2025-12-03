@@ -22,7 +22,7 @@ const videoGenerationRoutes = require('./videoGeneration');
 const streetsRoutes = require('./streets'); // Stage 6
 const contributionsRoutes = require('./contributions'); // Stage 6
 const verificationsRoutes = require('./verifications'); // Stage 6
-// const adminRoutes = require('./admin'); // Stage 7
+const adminRoutes = require('./admin'); // Stage 7
 
 // Register routes
 router.use('/auth', authRoutes);
@@ -38,7 +38,7 @@ router.use('/media/video', videoGenerationRoutes);
 router.use('/content/streets', streetsRoutes); // Stage 6
 router.use('/content/contributions', contributionsRoutes); // Stage 6
 router.use('/content', verificationsRoutes); // Stage 6 - verifications routes
-// router.use('/admin', adminRoutes);
+router.use('/admin', adminRoutes); // Stage 7
 
 // API root route
 router.get('/', (req, res) => {
@@ -59,6 +59,7 @@ router.get('/', (req, res) => {
       streets: '/api/content/streets',
       contributions: '/api/content/contributions',
       verifications: '/api/content/verifications',
+      admin: '/api/admin',
       health: '/api/health',
       info: '/api/info',
     },
