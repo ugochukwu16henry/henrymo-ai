@@ -14,8 +14,8 @@ const config = require('./config');
 const { errorHandler } = require('./middleware/errorHandler');
 const { requestLogger } = require('./middleware/logging');
 const { apiLimiter } = require('./middleware/rateLimiter');
-const { securityHeaders, requestId, extractIP } = require('./middleware/security');
 const routes = require('./routes');
+const logger = require('./utils/logger');
 
 // Initialize email scheduler
 if (process.env.NODE_ENV !== 'test') {
@@ -33,7 +33,7 @@ if (process.env.NODE_ENV !== 'test') {
     const autoMonitoringService = require('./services/autoMonitoringService');
     autoMonitoringService.startMonitoring(60000); // Monitor every minute
   } catch (error) {
-    console.warn('Auto-monitoring not started:', error.message);
+    logger.warn('Auto-monitoring not started', { error: error.message });
   }
 }
 
@@ -42,9 +42,6 @@ const PORT = config.port;
 
 // Security middleware (order matters!)
 app.use(helmet());
-app.use(securityHeaders);
-app.use(requestId);
-app.use(extractIP);
 
 // CORS configuration
 const corsOptions = {
@@ -141,7 +138,7 @@ app.use(errorHandler);
 
 // Start server
 const server = app.listen(PORT, () => {
-  console.log(`
+  logger.info(`
 ╔══════════════════════════════════════════════════════╗
 ║                                                      ║
 ║   🚀 HenryMo AI API Server                          ║
@@ -166,7 +163,7 @@ process.on('SIGTERM', () => {
 });
 
 process.on('SIGINT', () => {
-  console.log('SIGINT signal received: closing HTTP server');
+  logger.info('SIGINT signal received: closing HTTP server');
   server.close(() => {
     console.log('HTTP server closed');
     process.exit(0);

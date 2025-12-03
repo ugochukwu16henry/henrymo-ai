@@ -12,9 +12,8 @@ CREATE TABLE IF NOT EXISTS api_keys (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   key_name VARCHAR(255) NOT NULL,
-  api_key VARCHAR(255) NOT NULL UNIQUE,
   key_prefix VARCHAR(10) NOT NULL, -- First few characters for identification (e.g., "henmo_")
-  hashed_key TEXT NOT NULL, -- Hashed version for verification
+  hashed_key TEXT NOT NULL UNIQUE, -- Hashed version for verification (unique constraint)
   scopes JSONB DEFAULT '[]'::jsonb, -- Array of permissions/scopes
   rate_limit_per_minute INTEGER DEFAULT 60,
   rate_limit_per_day INTEGER DEFAULT 10000,
@@ -26,11 +25,11 @@ CREATE TABLE IF NOT EXISTS api_keys (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_api_keys_user_id ON api_keys(user_id);
-CREATE INDEX idx_api_keys_api_key ON api_keys(api_key);
-CREATE INDEX idx_api_keys_key_prefix ON api_keys(key_prefix);
-CREATE INDEX idx_api_keys_is_active ON api_keys(is_active);
-CREATE INDEX idx_api_keys_last_used_at ON api_keys(last_used_at);
+CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
+CREATE INDEX IF NOT EXISTS idx_api_keys_hashed_key ON api_keys(hashed_key);
+CREATE INDEX IF NOT EXISTS idx_api_keys_key_prefix ON api_keys(key_prefix);
+CREATE INDEX IF NOT EXISTS idx_api_keys_is_active ON api_keys(is_active);
+CREATE INDEX IF NOT EXISTS idx_api_keys_last_used_at ON api_keys(last_used_at);
 
 -- ----------------------------------------------------------------------------
 -- API Usage Logs Table

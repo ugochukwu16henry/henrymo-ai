@@ -20,7 +20,7 @@ class LocationService {
    */
   async getCountries() {
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'SELECT id, code, name, created_at FROM countries ORDER BY name ASC'
       );
       return result.rows;
@@ -35,7 +35,7 @@ class LocationService {
    */
   async getCountryByCode(code) {
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'SELECT id, code, name, created_at FROM countries WHERE code = $1',
         [code.toUpperCase()]
       );
@@ -51,7 +51,7 @@ class LocationService {
    */
   async getCountryById(id) {
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'SELECT id, code, name, created_at FROM countries WHERE id = $1',
         [id]
       );
@@ -68,7 +68,7 @@ class LocationService {
   async createCountry(data) {
     const { code, name } = data;
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'INSERT INTO countries (code, name) VALUES ($1, $2) RETURNING id, code, name, created_at',
         [code.toUpperCase(), name]
       );
@@ -88,7 +88,7 @@ class LocationService {
    */
   async getStatesByCountry(countryId) {
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'SELECT id, country_id, code, name, created_at FROM states WHERE country_id = $1 ORDER BY name ASC',
         [countryId]
       );
@@ -107,7 +107,7 @@ class LocationService {
    */
   async getStateById(id) {
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'SELECT id, country_id, code, name, created_at FROM states WHERE id = $1',
         [id]
       );
@@ -124,7 +124,7 @@ class LocationService {
   async createState(data) {
     const { countryId, code, name } = data;
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'INSERT INTO states (country_id, code, name) VALUES ($1, $2, $3) RETURNING id, country_id, code, name, created_at',
         [countryId, code, name]
       );
@@ -143,7 +143,7 @@ class LocationService {
    */
   async getCitiesByState(stateId) {
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'SELECT id, state_id, country_id, name, latitude, longitude, created_at FROM cities WHERE state_id = $1 ORDER BY name ASC',
         [stateId]
       );
@@ -159,7 +159,7 @@ class LocationService {
    */
   async getCitiesByCountry(countryId) {
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'SELECT id, state_id, country_id, name, latitude, longitude, created_at FROM cities WHERE country_id = $1 ORDER BY name ASC',
         [countryId]
       );
@@ -178,7 +178,7 @@ class LocationService {
    */
   async getCityById(id) {
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'SELECT id, state_id, country_id, name, latitude, longitude, created_at FROM cities WHERE id = $1',
         [id]
       );
@@ -195,7 +195,7 @@ class LocationService {
   async createCity(data) {
     const { stateId, countryId, name, latitude, longitude } = data;
     try {
-      const result = await pool.query(
+      const result = await db.query(
         'INSERT INTO cities (state_id, country_id, name, latitude, longitude) VALUES ($1, $2, $3, $4, $5) RETURNING id, state_id, country_id, name, latitude, longitude, created_at',
         [stateId, countryId, name, latitude, longitude]
       );

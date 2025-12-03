@@ -22,7 +22,7 @@ class StreetService {
     const { cityId, stateId, countryId, name, latitude, longitude, fullAddress } = data;
 
     try {
-      const result = await pool.query(
+      const result = await db.query(
         `INSERT INTO streets (city_id, state_id, country_id, name, latitude, longitude, full_address)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING id, city_id, state_id, country_id, name, latitude, longitude, full_address, 
@@ -41,7 +41,7 @@ class StreetService {
    */
   async getStreetById(id) {
     try {
-      const result = await pool.query(
+      const result = await db.query(
         `SELECT s.id, s.city_id, s.state_id, s.country_id, s.name, s.latitude, s.longitude, 
                 s.full_address, s.contribution_count, s.last_contribution_at, s.created_at, s.updated_at,
                 c.name as city_name, st.name as state_name, co.name as country_name, co.code as country_code
@@ -162,7 +162,7 @@ class StreetService {
 
       // Get streets
       queryParams.push(limit, offset);
-      const result = await pool.query(
+      const result = await db.query(
         `SELECT s.id, s.city_id, s.state_id, s.country_id, s.name, s.latitude, s.longitude, 
                 s.full_address, s.contribution_count, s.last_contribution_at, s.created_at, s.updated_at,
                 c.name as city_name, st.name as state_name, co.name as country_name, co.code as country_code
@@ -267,7 +267,7 @@ class StreetService {
       }
 
       values.push(id);
-      const result = await pool.query(
+      const result = await db.query(
         `UPDATE streets 
          SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
          WHERE id = $${paramIndex}
@@ -292,7 +292,7 @@ class StreetService {
    */
   async deleteStreet(id) {
     try {
-      const result = await pool.query('DELETE FROM streets WHERE id = $1 RETURNING id', [id]);
+      const result = await db.query('DELETE FROM streets WHERE id = $1 RETURNING id', [id]);
       return result.rows.length > 0;
     } catch (error) {
       logger.error('Error deleting street', { error: error.message, id });
