@@ -23,6 +23,8 @@ const streetsRoutes = require('./streets'); // Stage 6
 const contributionsRoutes = require('./contributions'); // Stage 6
 const verificationsRoutes = require('./verifications'); // Stage 6
 const adminRoutes = require('./admin'); // Stage 7
+const paymentRoutes = require('./payment'); // Stage 7
+const financialRoutes = require('./financial'); // Stage 7
 
 // Register routes
 router.use('/auth', authRoutes);
@@ -39,6 +41,8 @@ router.use('/content/streets', streetsRoutes); // Stage 6
 router.use('/content/contributions', contributionsRoutes); // Stage 6
 router.use('/content', verificationsRoutes); // Stage 6 - verifications routes
 router.use('/admin', adminRoutes); // Stage 7
+router.use('/payment', paymentRoutes); // Stage 7
+router.use('/financial', financialRoutes); // Stage 7
 
 // API root route
 router.get('/', (req, res) => {
@@ -60,6 +64,8 @@ router.get('/', (req, res) => {
       contributions: '/api/content/contributions',
       verifications: '/api/content/verifications',
       admin: '/api/admin',
+      payment: '/api/payment',
+      financial: '/api/financial',
       health: '/api/health',
       info: '/api/info',
     },
