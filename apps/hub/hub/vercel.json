@@ -1,9 +1,9 @@
 {
-  "buildCommand": "cd ../.. && pnpm install && cd apps/hub/hub && pnpm build",
+  "buildCommand": "cd ../.. && pnpm install --filter @henrymo-ai/hub... && pnpm --filter @henrymo-ai/hub build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "cd ../.. && pnpm install --filter @henrymo-ai/hub",
-  "devCommand": "cd ../.. && pnpm dev --filter @henrymo-ai/hub",
+  "installCommand": "cd ../.. && pnpm install --filter @henrymo-ai/hub...",
+  "devCommand": "pnpm dev",
   "rewrites": [
     {
       "source": "/api/:path*",

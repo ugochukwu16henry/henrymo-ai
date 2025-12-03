@@ -18,7 +18,6 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "pnpm -r type-check",
     "clean": "pnpm -r clean && rm -rf node_modules",
-    "postinstall": "pnpm -r exec pnpm install || true"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
