@@ -106,12 +106,32 @@ export const aiApi = {
 
       clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({
-          error: `Failed to start streaming: ${response.status} ${response.statusText}`,
-        }));
-        throw new Error(error.error || `Failed to start streaming: ${response.status}`);
-      }
+        if (!response.ok) {
+          let errorMessage = `Failed to start streaming: ${response.status} ${response.statusText}`;
+          try {
+            const error = await response.json();
+            errorMessage = error.error || error.message || errorMessage;
+          } catch (e) {
+            // If JSON parsing fails, try to get text
+            try {
+              const text = await response.text();
+              if (text) errorMessage = text;
+            } catch (e2) {
+              // Ignore
+            }
+          }
+          
+          // Provide more helpful error messages
+          if (response.status === 401) {
+            errorMessage = 'Authentication failed. Please login again.';
+          } else if (response.status === 403) {
+            errorMessage = 'Access denied. Please check your API keys.';
+          } else if (response.status === 500) {
+            errorMessage = 'Server error. The AI service may be experiencing issues.';
+          }
+          
+          throw new Error(errorMessage);
+        }
 
       reader = response.body?.getReader() || null;
       const decoder = new TextDecoder();
@@ -178,7 +198,14 @@ export const aiApi = {
                 }
               } else if (data.type === 'done') {
                 hasCompleted = true;
-                if (onComplete) {
+                // If done event has an error, call onError instead
+                if (data.error) {
+                  if (onError) {
+                    onError(data.error);
+                  } else {
+                    throw new Error(data.error);
+                  }
+                } else if (onComplete) {
                   onComplete({
                     inputTokens: data.usage?.inputTokens || 0,
                     outputTokens: data.usage?.outputTokens || 0,
@@ -186,7 +213,16 @@ export const aiApi = {
                 }
                 return;
               } else if (data.type === 'error') {
-                throw new Error(data.error || 'Stream error');
+                // Store error but continue to wait for done event
+                const errorMsg = data.error || 'Stream error';
+                // If we haven't received any content, this is a fatal error
+                if (!receivedAnyContent) {
+                  throw new Error(errorMsg);
+                }
+                // Otherwise, log the error but continue
+                if (process.env.NODE_ENV === 'development') {
+                  console.warn('Stream error received:', errorMsg);
+                }
               }
             } catch (e) {
               // Skip invalid JSON lines but log in development
@@ -212,8 +248,46 @@ export const aiApi = {
           }
           return;
         }
+        
+        // Check if there's any remaining buffer data
+        if (buffer.trim()) {
+          const lines = buffer.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.type === 'done' && onComplete) {
+                  onComplete({
+                    inputTokens: data.usage?.inputTokens || 0,
+                    outputTokens: data.usage?.outputTokens || 0,
+                  });
+                  return;
+                } else if (data.type === 'chunk' && data.content) {
+                  receivedAnyContent = true;
+                  onChunk(data.content);
+                  if (onComplete) {
+                    onComplete({
+                      inputTokens: 0,
+                      outputTokens: 0,
+                    });
+                  }
+                  return;
+                }
+              } catch (e) {
+                // Ignore parse errors
+              }
+            }
+          }
+        }
+        
         // If no content was received, it's an error
-        throw new Error('Stream ended unexpectedly without completion');
+        const errorMsg = 'Stream ended unexpectedly without completion. The AI service may be experiencing issues.';
+        if (onError) {
+          onError(errorMsg);
+        } else {
+          throw new Error(errorMsg);
+        }
+        return;
       }
     } catch (error) {
       // Clean up reader if still open

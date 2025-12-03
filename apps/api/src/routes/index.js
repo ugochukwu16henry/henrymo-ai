@@ -18,6 +18,7 @@ const codeAnalysisRoutes = require('./codeAnalysis');
 const debuggingRoutes = require('./debugging');
 const uploadRoutes = require('./upload');
 const imageGenerationRoutes = require('./imageGeneration');
+const videoGenerationRoutes = require('./videoGeneration');
 // const adminRoutes = require('./admin'); // Stage 7
 
 // Register routes
@@ -30,6 +31,7 @@ router.use('/ai-capabilities/analyze', codeAnalysisRoutes);
 router.use('/ai-capabilities/debug', debuggingRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/media/image', imageGenerationRoutes);
+router.use('/media/video', videoGenerationRoutes);
 // router.use('/admin', adminRoutes);
 
 // API root route

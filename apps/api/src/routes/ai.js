@@ -318,9 +318,19 @@ router.post(
         });
 
         if (!res.closed) {
+          // Send error event
           res.write(
             `data: ${JSON.stringify({
               type: 'error',
+              error: error.message || 'Failed to generate response',
+            })}\n\n`
+          );
+          
+          // Also send done event with error info so frontend can handle it
+          res.write(
+            `data: ${JSON.stringify({
+              type: 'done',
+              usage: { inputTokens: 0, outputTokens: 0 },
               error: error.message || 'Failed to generate response',
             })}\n\n`
           );
