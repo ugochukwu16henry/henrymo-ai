@@ -169,28 +169,71 @@ class AnthropicService {
       let fullContent = '';
       let inputTokens = 0;
       let outputTokens = 0;
+      let finishReason = 'stop';
 
-      for await (const event of stream) {
-        if (event.type === 'message_start') {
-          inputTokens = event.message.usage?.input_tokens || 0;
-        } else if (event.type === 'content_block_delta') {
-          const delta = event.delta?.text || '';
-          fullContent += delta;
-          if (onChunk) {
-            onChunk(delta);
+      try {
+        for await (const event of stream) {
+          if (event.type === 'message_start') {
+            inputTokens = event.message.usage?.input_tokens || 0;
+          } else if (event.type === 'content_block_delta') {
+            const delta = event.delta?.text || '';
+            if (delta) {
+              fullContent += delta;
+              if (onChunk) {
+                onChunk(delta);
+              }
+            }
+          } else if (event.type === 'message_delta') {
+            outputTokens = event.usage?.output_tokens || 0;
+            if (event.stop_reason) {
+              finishReason = event.stop_reason;
+            }
+          } else if (event.type === 'message_stop') {
+            // Final usage information
+            if (event.message?.usage) {
+              inputTokens = event.message.usage.input_tokens || inputTokens;
+              outputTokens = event.message.usage.output_tokens || outputTokens;
+            }
           }
-        } else if (event.type === 'message_delta') {
-          outputTokens = event.usage?.output_tokens || 0;
         }
+      } catch (streamError) {
+        logger.error('Error reading Anthropic stream', {
+          error: streamError.message,
+          model,
+        });
+        // If we have partial content, return it
+        if (fullContent) {
+          return {
+            content: fullContent,
+            usage: {
+              inputTokens: inputTokens || 0,
+              outputTokens: outputTokens || 0,
+            },
+            finishReason: 'error',
+            model,
+          };
+        }
+        throw streamError;
+      }
+
+      // Ensure we have usage information
+      if (inputTokens === 0 && outputTokens === 0 && fullContent) {
+        // Estimate tokens if not provided
+        const estimatedInput = Math.ceil(
+          messages.reduce((sum, msg) => sum + (msg.content?.length || 0), 0) / 4
+        );
+        const estimatedOutput = Math.ceil(fullContent.length / 4);
+        inputTokens = estimatedInput;
+        outputTokens = estimatedOutput;
       }
 
       return {
         content: fullContent,
         usage: {
-          inputTokens,
-          outputTokens,
+          inputTokens: inputTokens || 0,
+          outputTokens: outputTokens || 0,
         },
-        finishReason: 'stop',
+        finishReason,
         model,
       };
     } catch (error) {

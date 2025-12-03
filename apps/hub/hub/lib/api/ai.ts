@@ -123,6 +123,7 @@ export const aiApi = {
       let buffer = '';
       let lastChunkTime = Date.now();
       const chunkTimeout = 30000; // 30 seconds without chunks = timeout
+      let receivedAnyContent = false;
 
       while (true) {
         // Check for chunk timeout
@@ -133,19 +134,18 @@ export const aiApi = {
         const { done, value } = await reader.read();
 
         if (done) {
-          // If we haven't received a 'done' event, something went wrong
+          // If we haven't received a 'done' event, try to parse any remaining data
           if (!hasCompleted && buffer.trim()) {
-            // Try to parse any remaining data
             const lines = buffer.split('\n');
             for (const line of lines) {
               if (line.startsWith('data: ')) {
                 try {
                   const data = JSON.parse(line.slice(6));
-                  if (data.type === 'done' && onComplete && data.usage) {
+                  if (data.type === 'done' && onComplete) {
                     hasCompleted = true;
                     onComplete({
-                      inputTokens: data.usage.inputTokens || 0,
-                      outputTokens: data.usage.outputTokens || 0,
+                      inputTokens: data.usage?.inputTokens || 0,
+                      outputTokens: data.usage?.outputTokens || 0,
                     });
                     return;
                   }
@@ -171,13 +171,17 @@ export const aiApi = {
               const data = JSON.parse(line.slice(6));
 
               if (data.type === 'chunk') {
-                onChunk(data.content || '');
+                const chunkContent = data.content || '';
+                if (chunkContent) {
+                  receivedAnyContent = true;
+                  onChunk(chunkContent);
+                }
               } else if (data.type === 'done') {
                 hasCompleted = true;
-                if (onComplete && data.usage) {
+                if (onComplete) {
                   onComplete({
-                    inputTokens: data.usage.inputTokens || 0,
-                    outputTokens: data.usage.outputTokens || 0,
+                    inputTokens: data.usage?.inputTokens || 0,
+                    outputTokens: data.usage?.outputTokens || 0,
                   });
                 }
                 return;
@@ -195,8 +199,20 @@ export const aiApi = {
         }
       }
 
-      // If we exit the loop without completing, something went wrong
+      // If we exit the loop without completing, check if we received any content
       if (!hasCompleted) {
+        // If we received content chunks, treat it as complete (some streams may not send done event)
+        if (receivedAnyContent) {
+          if (onComplete) {
+            // Estimate usage if not provided
+            onComplete({
+              inputTokens: 0,
+              outputTokens: 0,
+            });
+          }
+          return;
+        }
+        // If no content was received, it's an error
         throw new Error('Stream ended unexpectedly without completion');
       }
     } catch (error) {

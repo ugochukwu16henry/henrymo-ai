@@ -178,13 +178,20 @@ router.post(
 
       let fullContent = '';
       let finalUsage = null;
+      let streamError = null;
 
       const onChunk = (chunk) => {
-        res.write(`data: ${JSON.stringify({ type: 'chunk', content: chunk })}\n\n`);
+        try {
+          if (!res.closed) {
+            res.write(`data: ${JSON.stringify({ type: 'chunk', content: chunk })}\n\n`);
+          }
+        } catch (error) {
+          logger.warn('Error writing chunk to stream', { error: error.message });
+        }
       };
 
       try {
-        // Get relevant memories for context
+        // Get relevant memories for context (with timeout)
         let enhancedMessages = [...messages];
         let relevantMemories = [];
 
@@ -195,8 +202,8 @@ router.post(
             .map(msg => `${msg.role}: ${msg.content}`)
             .join('\n');
 
-          // Get relevant memories
-          relevantMemories = await semanticSearchService.getRelevantMemoriesForContext(
+          // Get relevant memories with timeout
+          const memoryPromise = semanticSearchService.getRelevantMemoriesForContext(
             req.user.id,
             contextText,
             {
@@ -204,6 +211,13 @@ router.post(
               minScore: 0.75,
             }
           );
+
+          // 5 second timeout for memory retrieval
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Memory retrieval timeout')), 5000)
+          );
+
+          relevantMemories = await Promise.race([memoryPromise, timeoutPromise]);
 
           // Inject memories into system message if available
           if (relevantMemories.length > 0) {
@@ -227,7 +241,8 @@ router.post(
           });
         }
 
-        const response = await aiService.streamChat(
+        // Stream chat with timeout
+        const streamPromise = aiService.streamChat(
           {
             provider,
             model,
@@ -237,40 +252,84 @@ router.post(
           onChunk
         );
 
-        fullContent = response.content;
-        finalUsage = response.usage;
+        // 60 second timeout for AI streaming
+        const streamTimeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('AI streaming timeout')), 60000)
+        );
 
-        // Track usage
-        if (finalUsage) {
-          await costTrackingService.trackUsage({
+        let response;
+        try {
+          response = await Promise.race([streamPromise, streamTimeoutPromise]);
+        } catch (raceError) {
+          // If timeout or other error, still try to send done event
+          logger.error('Stream promise error', {
+            error: raceError.message,
+            userId: req.user?.id,
+          });
+          throw raceError;
+        }
+
+        fullContent = response?.content || '';
+        finalUsage = response?.usage || { inputTokens: 0, outputTokens: 0 };
+
+        // Track usage (don't wait for it)
+        if (finalUsage && response) {
+          costTrackingService.trackUsage({
             userId: req.user.id,
             conversationId,
             provider: response.provider,
             model: response.model,
             inputTokens: finalUsage.inputTokens || 0,
             outputTokens: finalUsage.outputTokens || 0,
+          }).catch(err => {
+            logger.warn('Failed to track usage', { error: err.message });
           });
         }
 
-        // Send final message with memory context
-        res.write(
-          `data: ${JSON.stringify({
-            type: 'done',
-            usage: finalUsage,
-            provider: response.provider,
-            model: response.model,
-            memoriesUsed: relevantMemories.length,
-          })}\n\n`
-        );
+        // Always send final message with memory context
+        if (!res.closed && response) {
+          res.write(
+            `data: ${JSON.stringify({
+              type: 'done',
+              usage: finalUsage,
+              provider: response.provider,
+              model: response.model,
+              memoriesUsed: relevantMemories.length,
+            })}\n\n`
+          );
+        } else if (!res.closed) {
+          // If response is null/undefined, still send done with empty usage
+          res.write(
+            `data: ${JSON.stringify({
+              type: 'done',
+              usage: { inputTokens: 0, outputTokens: 0 },
+              provider: provider || 'unknown',
+              model: model || 'unknown',
+              memoriesUsed: relevantMemories.length,
+            })}\n\n`
+          );
+        }
       } catch (error) {
-        res.write(
-          `data: ${JSON.stringify({
-            type: 'error',
-            error: error.message,
-          })}\n\n`
-        );
+        streamError = error;
+        logger.error('Error in AI stream', {
+          error: error.message,
+          userId: req.user?.id,
+          stack: error.stack,
+        });
+
+        if (!res.closed) {
+          res.write(
+            `data: ${JSON.stringify({
+              type: 'error',
+              error: error.message || 'Failed to generate response',
+            })}\n\n`
+          );
+        }
       } finally {
-        res.end();
+        // Always close the stream
+        if (!res.closed) {
+          res.end();
+        }
       }
     } catch (error) {
       logger.error('AI stream error', {
