@@ -33,7 +33,20 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     { name: 'ChatBoss', href: '/dashboard/chat', icon: MessageSquare },
     { name: 'Media Studio', href: '/dashboard/media', icon: Image },
     { name: 'Streets', href: '/dashboard/streets', icon: Map },
-    ...(isAdmin ? [{ name: 'Admin', href: '/dashboard/admin', icon: Shield }] : []),
+    ...(isAdmin
+      ? [
+          { name: 'Admin', href: '/dashboard/admin', icon: Shield },
+          ...(user?.role === 'super_admin'
+            ? [
+                { name: 'Control Panel', href: '/dashboard/admin/control-panel', icon: Settings },
+                { name: 'Modules', href: '/dashboard/admin/modules', icon: Settings },
+                { name: 'Training', href: '/dashboard/admin/training', icon: Settings },
+                { name: 'Monitoring', href: '/dashboard/admin/monitoring', icon: Settings },
+                { name: 'Console', href: '/dashboard/admin/console', icon: Settings },
+              ]
+            : []),
+        ]
+      : []),
     { name: 'Profile', href: '/dashboard/profile', icon: User },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
   ];
