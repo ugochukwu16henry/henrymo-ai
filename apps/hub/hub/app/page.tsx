@@ -16,7 +16,8 @@ import {
   ArrowRight,
   Sparkles,
   Brain,
-  Rocket
+  Rocket,
+  Share2
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -151,6 +152,12 @@ export default function LandingPage() {
                 <Button size="lg" className="text-lg px-8 py-6">
                   Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link href="/api">
+                <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-purple-500 text-purple-600 hover:bg-purple-50 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-900/20">
+                  View API
+                  <Code className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link href="/login">

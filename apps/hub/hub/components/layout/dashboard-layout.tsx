@@ -20,6 +20,7 @@ import {
   LogOut,
   Shield,
   Share2,
+  Key,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -36,6 +37,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     { name: 'Social Media', href: '/dashboard/social', icon: Share2 },
     { name: 'Media Studio', href: '/dashboard/media', icon: Image },
     { name: 'Streets', href: '/dashboard/streets', icon: Map },
+    { name: 'API Keys', href: '/dashboard/api-keys', icon: Key },
     ...(isAdmin
       ? [
           { name: 'Admin', href: '/dashboard/admin', icon: Shield },
