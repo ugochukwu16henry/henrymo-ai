@@ -19,6 +19,7 @@ const debuggingRoutes = require('./debugging');
 const uploadRoutes = require('./upload');
 const imageGenerationRoutes = require('./imageGeneration');
 const videoGenerationRoutes = require('./videoGeneration');
+const streetsRoutes = require('./streets'); // Stage 6
 // const adminRoutes = require('./admin'); // Stage 7
 
 // Register routes
@@ -32,6 +33,7 @@ router.use('/ai-capabilities/debug', debuggingRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/media/image', imageGenerationRoutes);
 router.use('/media/video', videoGenerationRoutes);
+router.use('/content/streets', streetsRoutes); // Stage 6
 // router.use('/admin', adminRoutes);
 
 // API root route
@@ -49,6 +51,8 @@ router.get('/', (req, res) => {
       debugging: '/api/ai-capabilities/debug',
       upload: '/api/upload',
       imageGeneration: '/api/media/image',
+      videoGeneration: '/api/media/video',
+      streets: '/api/content/streets',
       health: '/api/health',
       info: '/api/info',
     },
