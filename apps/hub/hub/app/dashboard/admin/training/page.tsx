@@ -42,7 +42,7 @@ export default function TrainingDashboardPage() {
       const response = await trainingApi.listSessions();
       if (response.success && response.data) {
         setSessions(response.data);
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to load training sessions');
       }
     } catch (error) {

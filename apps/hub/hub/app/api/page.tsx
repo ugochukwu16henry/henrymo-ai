@@ -82,7 +82,7 @@ export default function ApiPage() {
         setNewKeyName('');
         setShowKey({ [response.data.id]: true });
         await loadData();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to create API key');
       }
     } catch (error) {
@@ -104,7 +104,7 @@ export default function ApiPage() {
       if (response.success) {
         toast.success('API key revoked');
         await loadData();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to revoke API key');
       }
     } catch (error) {

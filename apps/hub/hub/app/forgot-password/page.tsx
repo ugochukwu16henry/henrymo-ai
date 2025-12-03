@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
       if (response.success) {
         setIsSuccess(true);
         toast.success('Password reset link sent!');
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to send reset link');
       }
     } catch (error) {

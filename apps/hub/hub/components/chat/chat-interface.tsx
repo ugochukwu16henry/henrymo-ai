@@ -61,7 +61,7 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
         if (!selectedConversationId && response.data.length > 0) {
           setSelectedConversationId(response.data[0].id);
         }
-      } else if (response.error?.includes('Authentication') || response.error?.includes('login')) {
+      } else if (!response.success && (response.error?.includes('Authentication') || response.error?.includes('login'))) {
         // Token is invalid, redirect will happen automatically via API client
         return;
       }
@@ -119,7 +119,7 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
         setConversations((prev) => [newConversation, ...prev]);
         setSelectedConversationId(newConversation.id);
         setMessages([]);
-      } else {
+      } else if (!response.success) {
         const errorMsg = response.error || 'Failed to create conversation';
         toast.error(errorMsg);
         console.error('Error creating conversation:', response);
@@ -167,7 +167,7 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
           setSelectedConversationId(newConversation.id);
           setMessages([]);
           conversationId = newConversation.id;
-        } else {
+        } else if (!response.success) {
           const errorMsg = response.error || 'Failed to create conversation';
           toast.error(errorMsg);
           console.error('Error creating conversation:', response);

@@ -122,7 +122,7 @@ export function ContributionUpload() {
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to upload contribution');
       }
     } catch (error) {
