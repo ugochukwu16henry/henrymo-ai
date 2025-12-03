@@ -26,10 +26,10 @@ const adminRoutes = require('./admin'); // Stage 7
 const paymentRoutes = require('./payment'); // Stage 7
 const financialRoutes = require('./financial'); // Stage 7
 const analyticsRoutes = require('./analytics'); // Stage 7
-const emailRoutes = require('./email');
-const motherboardRoutes = require('./motherboard');
-const selfImprovementRoutes = require('./selfImprovement');
-const superAdminControlRoutes = require('./superAdminControl'); // Stage 7
+const emailRoutes = require('./email'); // Stage 7
+const motherboardRoutes = require('./motherboard'); // Stage 8
+const selfImprovementRoutes = require('./selfImprovement'); // Stage 8
+const superAdminControlRoutes = require('./superAdminControl'); // Stage 8
 
 // Register routes
 router.use('/auth', authRoutes);
@@ -50,6 +50,9 @@ router.use('/payment', paymentRoutes); // Stage 7
 router.use('/financial', financialRoutes); // Stage 7
 router.use('/analytics', analyticsRoutes); // Stage 7
 router.use('/email', emailRoutes); // Stage 7
+router.use('/motherboard', motherboardRoutes); // Stage 8
+router.use('/self-improvement', selfImprovementRoutes); // Stage 8
+router.use('/super-admin', superAdminControlRoutes); // Stage 8
 
 // API root route
 router.get('/', (req, res) => {
@@ -75,6 +78,9 @@ router.get('/', (req, res) => {
       financial: '/api/financial',
       analytics: '/api/analytics',
       email: '/api/email',
+      motherboard: '/api/motherboard',
+      selfImprovement: '/api/self-improvement',
+      superAdminControl: '/api/super-admin',
       health: '/api/health',
       info: '/api/info',
     },
