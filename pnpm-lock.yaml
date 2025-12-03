@@ -30,8 +30,8 @@ importers:
         specifier: ^3.489.0
         version: 3.940.0
       '@pinecone-database/pinecone':
-        specifier: ^6.1.3
-        version: 6.1.3
+        specifier: ^4.0.0
+        version: 4.1.0
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
@@ -1727,8 +1727,8 @@ packages:
     engines: {node: '>=12.4.0'}
     dev: true
 
-  /@pinecone-database/pinecone@6.1.3:
-    resolution: {integrity: sha512-EegC8sLP40+xdq3bu80TR6OZe3Sc4LuJFSFZb8RbMr3xvODEsvXe4QoS+kFx2PDR5g3dokP44NFR9AxseCeVQA==}
+  /@pinecone-database/pinecone@4.1.0:
+    resolution: {integrity: sha512-WoVsbvmCgvZfjm/nCasJXuQ/tw0es5BpedLHvRScAm6xJ/nL07s3B0TrsM8m8rACTiUgbdYsdLY1W6cEBhS9xA==}
     engines: {node: '>=18.0.0'}
     dev: false
 

@@ -5,9 +5,17 @@
  * @author Henry Maobughichi Ugochukwu
  */
 
-const { Pinecone } = require('@pinecone-database/pinecone');
 const config = require('../config');
 const logger = require('../utils/logger');
+
+// Conditionally require Pinecone (graceful degradation)
+let Pinecone = null;
+try {
+  const pineconeModule = require('@pinecone-database/pinecone');
+  Pinecone = pineconeModule.Pinecone;
+} catch (error) {
+  logger.warn('Pinecone package not installed. Semantic search will be disabled.');
+}
 
 class PineconeService {
   constructor() {
@@ -17,6 +25,11 @@ class PineconeService {
   }
 
   async initialize() {
+    if (!Pinecone) {
+      logger.warn('Pinecone package not installed. Semantic search will be disabled.');
+      return;
+    }
+
     if (!config.pinecone.apiKey) {
       logger.warn('Pinecone API key not configured. Semantic search will be disabled.');
       return;
