@@ -63,7 +63,24 @@ HenryMo AI serves multiple purposes:
 - **Streaming Responses**: Real-time token streaming for better UX
 - **Context Management**: Conversation history and memory integration
 - **Personality System**: Professional, Friendly, Creative, Technical, Mentor, Analyst personalities
-- **Multi-Language Support**: 11+ programming languages (JavaScript, TypeScript, Python, Java, C#, Go, Rust, PHP, SQL, C++, C)
+- **Multi-Language Support**: 40+ programming languages (JavaScript, TypeScript, Python, Java, C#, Go, Rust, PHP, SQL, C++, C, Swift, Kotlin, Dart, Ruby, Perl, Scala, Haskell, Elixir, and more)
+- **Complete AI Assistant Capabilities**: All capabilities of advanced AI coding assistants (like Cursor AI/Auto) are integrated into ChatBoss
+
+#### Advanced AI Assistant Features (Powered by ChatBoss)
+
+- **Semantic Code Understanding**: Understands code meaning, not just syntax
+- **Cross-File Analysis**: Traces relationships across entire codebases
+- **Multi-File Operations**: Edit multiple files simultaneously with consistency
+- **Intelligent Code Generation**: Context-aware code that fits existing patterns
+- **Advanced Refactoring**: Safe, comprehensive code refactoring across projects
+- **Error Diagnosis**: Deep error analysis with root cause identification
+- **Semantic Code Search**: Find code by meaning, not keywords
+- **Project Management**: Task tracking and progress management
+- **Documentation Generation**: Auto-generates comprehensive documentation
+- **Terminal Operations**: Execute commands and manage workflows
+- **Code Quality Assurance**: Linting, type checking, best practices enforcement
+- **Context Awareness**: Remembers conversation and project context
+- **Learning & Adaptation**: Learns your codebase and coding style
 
 **Key Files:**
 

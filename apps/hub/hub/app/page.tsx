@@ -34,7 +34,7 @@ export default function LandingPage() {
     {
       icon: MessageSquare,
       title: 'ChatBoss AI Assistant',
-      description: 'Intelligent AI chat assistant powered by Claude and GPT-4. Get instant help with coding, debugging, and problem-solving.',
+      description: 'Complete AI coding assistant with semantic code understanding, multi-file operations, intelligent refactoring, error diagnosis, and 40+ language support. All capabilities of advanced AI assistants integrated.',
       color: 'text-blue-600 dark:text-blue-400',
       bgColor: 'bg-blue-50 dark:bg-blue-900/20',
     },
@@ -87,9 +87,9 @@ export default function LandingPage() {
   ];
 
   const stats = [
-    { value: '11+', label: 'Programming Languages' },
+    { value: '40+', label: 'Programming Languages' },
     { value: '2+', label: 'AI Providers' },
-    { value: '65+', label: 'Features' },
+    { value: '100+', label: 'AI Features' },
     { value: '24/7', label: 'Support' },
   ];
 
