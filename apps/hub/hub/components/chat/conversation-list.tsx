@@ -56,21 +56,21 @@ export function ConversationList({
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-900 overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0">
         <Button
           onClick={onCreateConversation}
-          className="w-full justify-start"
+          className="w-full justify-center bg-primary hover:bg-primary/90 shadow-sm"
           size="sm"
         >
-          <Plus className="h-4 w-4 mr-2" />
-          New Conversation
+          <Plus className="h-4 w-4 mr-2 text-black" />
+          <span className="text-black font-bold">New Conversation</span>
         </Button>
       </div>
 
       {/* Search */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
@@ -78,12 +78,12 @@ export function ConversationList({
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 pr-8"
+            className="pl-9 pr-8 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-primary"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             >
               <X className="h-4 w-4" />
             </button>
@@ -107,18 +107,30 @@ export function ConversationList({
               <div
                 key={conversation.id}
                 className={cn(
-                  'group relative flex items-start gap-3 p-3 rounded-lg cursor-pointer',
+                  'group relative flex items-start gap-3 px-4 py-3 mx-2 rounded-xl cursor-pointer',
                   'hover:bg-gray-100 dark:hover:bg-gray-800',
-                  'transition-colors',
+                  'transition-all duration-200',
                   selectedConversationId === conversation.id &&
-                    'bg-primary/10 hover:bg-primary/10 dark:bg-primary/20'
+                    'bg-primary/10 hover:bg-primary/10 dark:bg-primary/20 border-l-4 border-primary'
                 )}
                 onClick={() => onSelectConversation(conversation.id)}
               >
-                <MessageSquare className="h-5 w-5 text-gray-400 mt-0.5 shrink-0" />
+                <div className={cn(
+                  'h-10 w-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5',
+                  selectedConversationId === conversation.id
+                    ? 'bg-primary/20 text-primary'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                )}>
+                  <MessageSquare className="h-5 w-5" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                    <p className={cn(
+                      'text-sm font-semibold truncate',
+                      selectedConversationId === conversation.id
+                        ? 'text-gray-900 dark:text-gray-100'
+                        : 'text-gray-700 dark:text-gray-300'
+                    )}>
                       {conversation.title || 'New Conversation'}
                     </p>
                     <button
@@ -132,7 +144,7 @@ export function ConversationList({
                           onDeleteConversation(conversation.id);
                         }
                       }}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 dark:text-red-400 shrink-0"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 dark:text-red-400 shrink-0 p-1 hover:bg-red-50 dark:hover:bg-red-950/20 rounded"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

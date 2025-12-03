@@ -208,6 +208,17 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
 
       let fullContent = '';
 
+      // Ensure model is set
+      if (!model) {
+        toast.error('Please select a model in conversation settings');
+        setIsStreaming(false);
+        setStreamingMessageId(null);
+        setMessages((prev) => prev.filter((msg) => msg.id !== assistantMessageId));
+        return;
+      }
+
+      console.log('Sending to AI:', { provider, model, messageCount: chatMessages.length });
+
       // Stream AI response
       await aiApi.streamChat(
         {
@@ -260,7 +271,8 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
           await loadConversations();
         },
         (error) => {
-          toast.error(`AI Error: ${error}`);
+          console.error('AI streaming error:', error);
+          toast.error(`AI Error: ${error}. Please check your API keys and try again.`);
           setIsStreaming(false);
           setStreamingMessageId(null);
           // Remove failed message
@@ -319,9 +331,9 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
   };
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full bg-gray-50 dark:bg-gray-950 overflow-hidden">
       {/* Sidebar */}
-      <div className="w-80 shrink-0">
+      <div className="w-80 shrink-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col overflow-hidden">
         <ConversationList
           conversations={conversations}
           selectedConversationId={selectedConversationId}
@@ -333,30 +345,39 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-gray-900">
         {/* Header */}
         {selectedConversationId && (
-          <div className="border-b border-gray-200 dark:border-gray-800 px-4 py-2 flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4 flex items-center justify-between shadow-sm">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
                 {conversations.find((c) => c.id === selectedConversationId)?.title ||
                   'New Conversation'}
               </h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {(() => {
-                  const conv = conversations.find((c) => c.id === selectedConversationId);
-                  const provider = conv?.provider || 'anthropic';
-                  const model = conv?.model || 'Select model';
-                  return `${provider} • ${model}`;
-                })()}
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs font-medium text-primary">
+                  {(() => {
+                    const conv = conversations.find((c) => c.id === selectedConversationId);
+                    return conv?.provider === 'anthropic' ? 'Anthropic' : 'OpenAI';
+                  })()}
+                </span>
+                <span className="text-xs text-gray-400">•</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {(() => {
+                    const conv = conversations.find((c) => c.id === selectedConversationId);
+                    return conv?.model || 'Select model';
+                  })()}
+                </span>
+              </div>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowSettings(true)}
+              className="shrink-0"
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
             </Button>
           </div>
         )}

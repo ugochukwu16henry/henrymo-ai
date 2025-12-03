@@ -41,33 +41,33 @@ export function MessageItem({ message, onDelete }: MessageItemProps) {
   return (
     <div
       className={cn(
-        'group flex gap-4 p-4',
-        isUser ? 'bg-gray-50 dark:bg-gray-800/50' : 'bg-white dark:bg-gray-900'
+        'group flex gap-4 px-6 py-5 hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors',
+        isUser ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-900'
       )}
     >
       {/* Avatar */}
       <div
         className={cn(
-          'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+          'flex h-10 w-10 shrink-0 items-center justify-center rounded-full shadow-sm',
           isUser
             ? 'bg-primary text-primary-foreground'
-            : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+            : 'bg-gradient-to-br from-purple-500 to-blue-500 text-white'
         )}
       >
         {isUser ? (
-          <User className="h-4 w-4" />
+          <User className="h-5 w-5" />
         ) : (
-          <Bot className="h-4 w-4" />
+          <Bot className="h-5 w-5" />
         )}
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {isUser ? 'You' : 'ChatBoss'}
           </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-gray-400 dark:text-gray-500">
             {formatTime(message.createdAt)}
           </span>
         </div>
@@ -76,11 +76,13 @@ export function MessageItem({ message, onDelete }: MessageItemProps) {
         <div
           className={cn(
             'prose prose-sm dark:prose-invert max-w-none',
-            'prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800',
-            'prose-code:text-sm prose-code:font-mono',
-            'prose-p:my-2 prose-p:leading-relaxed',
-            'prose-ul:my-2 prose-ol:my-2',
-            'prose-headings:my-3'
+            'prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:text-gray-100',
+            'prose-code:text-sm prose-code:font-mono prose-code:bg-gray-100 dark:prose-code:bg-gray-800',
+            'prose-p:my-3 prose-p:leading-relaxed prose-p:text-gray-800 dark:prose-p:text-gray-200',
+            'prose-ul:my-3 prose-ol:my-3',
+            'prose-headings:my-4 prose-headings:text-gray-900 dark:prose-headings:text-gray-100',
+            'prose-strong:text-gray-900 dark:prose-strong:text-gray-100',
+            'prose-a:text-primary hover:prose-a:text-primary/80'
           )}
         >
           {isAssistant ? (
@@ -116,12 +118,12 @@ export function MessageItem({ message, onDelete }: MessageItemProps) {
         </div>
 
         {/* Message Actions */}
-        <div className="flex items-center gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button
             variant="ghost"
             size="sm"
             onClick={handleCopy}
-            className="h-7 px-2 text-xs"
+            className="h-8 px-3 text-xs hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             {copied ? (
               <>
@@ -140,7 +142,7 @@ export function MessageItem({ message, onDelete }: MessageItemProps) {
               variant="ghost"
               size="sm"
               onClick={handleDelete}
-              className="h-7 px-2 text-xs text-red-600 hover:text-red-700 dark:text-red-400"
+              className="h-8 px-3 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20"
             >
               <Trash2 className="h-3 w-3 mr-1" />
               Delete

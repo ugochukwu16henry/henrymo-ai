@@ -77,74 +77,91 @@ export const aiApi = {
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/ai/chat/stream`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(request),
-        }
-      );
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({
-          error: 'Failed to start streaming',
-        }));
-        throw new Error(error.error || 'Failed to start streaming');
-      }
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/ai/chat/stream`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(request),
+            signal: controller.signal,
+          }
+        );
 
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
+        clearTimeout(timeoutId);
 
-      if (!reader) {
-        throw new Error('No response body');
-      }
-
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) {
-          break;
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({
+            error: `Failed to start streaming: ${response.status} ${response.statusText}`,
+          }));
+          throw new Error(error.error || `Failed to start streaming: ${response.status}`);
         }
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6));
+        if (!reader) {
+          throw new Error('No response body');
+        }
 
-              if (data.type === 'chunk') {
-                onChunk(data.content);
-              } else if (data.type === 'done') {
-                if (onComplete && data.usage) {
-                  onComplete({
-                    inputTokens: data.usage.inputTokens || 0,
-                    outputTokens: data.usage.outputTokens || 0,
-                  });
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) {
+            break;
+          }
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+
+                if (data.type === 'chunk') {
+                  onChunk(data.content);
+                } else if (data.type === 'done') {
+                  if (onComplete && data.usage) {
+                    onComplete({
+                      inputTokens: data.usage.inputTokens || 0,
+                      outputTokens: data.usage.outputTokens || 0,
+                    });
+                  }
+                  return;
+                } else if (data.type === 'error') {
+                  throw new Error(data.error || 'Stream error');
                 }
-                return;
-              } else if (data.type === 'error') {
-                throw new Error(data.error || 'Stream error');
+              } catch (e) {
+                // Skip invalid JSON lines
+                continue;
               }
-            } catch (e) {
-              // Skip invalid JSON lines
-              continue;
             }
           }
         }
+      } catch (streamError) {
+        clearTimeout(timeoutId);
+        throw streamError;
       }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      if (onError) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        if (onError) {
+          onError('Request timeout - the AI is taking too long to respond');
+        } else {
+          throw new Error('Request timeout');
+        }
+      } else if (onError) {
         onError(errorMessage);
       } else {
         throw error;
