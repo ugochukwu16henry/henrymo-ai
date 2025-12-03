@@ -9,7 +9,6 @@ const { z } = require('zod');
 const multer = require('multer');
 const contributionService = require('../services/contributionService');
 const imageProcessingService = require('../services/imageProcessingService');
-const verificationService = require('../services/verificationService');
 const { authenticate } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
 const {
@@ -17,7 +16,6 @@ const {
   updateContributionSchema,
   listContributionsSchema,
 } = require('../validators/contributionValidators');
-const { verifyContributionSchema } = require('../validators/verificationValidators');
 const logger = require('../utils/logger');
 
 // Configure multer for memory storage
@@ -209,97 +207,9 @@ router.put(
   }
 );
 
-/**
- * Check if user can verify contributions
- */
-const canVerify = (user) => {
-  const allowedRoles = ['admin', 'moderator', 'verifier', 'super_admin'];
-  return allowedRoles.includes(user.role);
-};
-
-/**
- * POST /api/content/contributions/:id/verify
- * Verify a contribution
- */
-router.post(
-  '/:id/verify',
-  authenticate,
-  validate(z.object({ body: verifyContributionSchema })),
-  async (req, res, next) => {
-    try {
-      // Check permissions
-      if (!canVerify(req.user)) {
-        return res.status(403).json({
-          success: false,
-          error: 'You do not have permission to verify contributions',
-        });
-      }
-
-      // Verify contribution
-      const result = await verificationService.verifyContribution(
-        req.params.id,
-        req.user.id,
-        req.body
-      );
-
-      res.json({
-        success: true,
-        data: result,
-        message: `Contribution ${req.body.verdict} successfully`,
-      });
-    } catch (error) {
-      logger.error('Error verifying contribution', {
-        error: error.message,
-        contributionId: req.params.id,
-        verifierId: req.user?.id,
-      });
-      next(error);
-    }
-  }
-);
-
-/**
- * GET /api/content/contributions/:id/verifications
- * Get verifications for a contribution
- */
-router.get('/:id/verifications', authenticate, async (req, res, next) => {
-  try {
-    // Check if contribution exists
-    const contribution = await contributionService.getContributionById(req.params.id);
-    if (!contribution) {
-      return res.status(404).json({
-        success: false,
-        error: 'Contribution not found',
-      });
-    }
-
-    // Check permissions - users can see verifications for their own contributions
-    if (
-      contribution.userId !== req.user.id &&
-      !canVerify(req.user)
-    ) {
-      return res.status(403).json({
-        success: false,
-        error: 'You do not have permission to view verifications for this contribution',
-      });
-    }
-
-    const verifications = await verificationService.getVerificationsByContribution(
-      req.params.id
-    );
-
-    res.json({
-      success: true,
-      data: verifications,
-    });
-  } catch (error) {
-    logger.error('Error fetching verifications for contribution', {
-      error: error.message,
-      contributionId: req.params.id,
-    });
-    next(error);
-  }
-});
+// Note: Verification routes are handled in verifications.js
+// POST /api/content/contributions/:id/verify -> handled in verifications.js
+// GET /api/content/contributions/:id/verifications -> handled in verifications.js
 
 module.exports = router;
 

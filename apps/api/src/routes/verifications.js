@@ -14,15 +14,8 @@ const {
   verifyContributionSchema,
   listVerificationsSchema,
 } = require('../validators/verificationValidators');
+const { canVerify } = require('../utils/permissions');
 const logger = require('../utils/logger');
-
-/**
- * Check if user can verify contributions
- */
-const canVerify = (user) => {
-  const allowedRoles = ['admin', 'moderator', 'verifier', 'super_admin'];
-  return allowedRoles.includes(user.role);
-};
 
 /**
  * POST /api/content/contributions/:id/verify
