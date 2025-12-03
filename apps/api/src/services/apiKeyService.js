@@ -45,13 +45,12 @@ class ApiKeyService {
 
       const result = await db.query(
         `INSERT INTO api_keys 
-         (user_id, key_name, api_key, key_prefix, hashed_key, scopes, rate_limit_per_minute, rate_limit_per_day, expires_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         (user_id, key_name, key_prefix, hashed_key, scopes, rate_limit_per_minute, rate_limit_per_day, expires_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING id, key_name, key_prefix, scopes, rate_limit_per_minute, rate_limit_per_day, is_active, created_at, expires_at`,
         [
           userId,
           keyName,
-          apiKey, // Store plain key temporarily (will be shown once)
           keyPrefix,
           hashedKey,
           JSON.stringify(scopes),
