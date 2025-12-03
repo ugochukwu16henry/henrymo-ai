@@ -68,21 +68,28 @@ export default function SocialMediaPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Social Media Management
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Manage all your social media accounts from one place
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      {/* Header */}
+      <div className="border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+        <div className="container mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Social Media Management
+              </h1>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">
+                Manage all your social media accounts from one place
+              </p>
+            </div>
+            <Button className="shadow-lg">
+              <Plus className="h-4 w-4 mr-2" />
+              Connect Account
+            </Button>
+          </div>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Connect Account
-        </Button>
       </div>
+
+      <div className="container mx-auto px-6 py-8 space-y-6">
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
@@ -208,6 +215,7 @@ export default function SocialMediaPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

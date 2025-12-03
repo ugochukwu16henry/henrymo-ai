@@ -59,13 +59,20 @@ export default function LandingPage() {
       color: 'text-orange-600 dark:text-orange-400',
       bgColor: 'bg-orange-50 dark:bg-orange-900/20',
     },
-    {
-      icon: Map,
-      title: 'Streets Platform',
-      description: 'Crowdsourced street mapping with verification and rewards. Contribute to building the world\'s most comprehensive street database.',
-      color: 'text-teal-600 dark:text-teal-400',
-      bgColor: 'bg-teal-50 dark:bg-teal-900/20',
-    },
+           {
+             icon: Map,
+             title: 'Streets Platform',
+             description: 'Crowdsourced street mapping with verification and rewards. Contribute to building the world\'s most comprehensive street database.',
+             color: 'text-teal-600 dark:text-teal-400',
+             bgColor: 'bg-teal-50 dark:bg-teal-900/20',
+           },
+           {
+             icon: Share2,
+             title: 'Social Media Management',
+             description: 'Complete social media management platform. Schedule posts, track analytics, manage multiple accounts, monitor mentions, analyze competitors, and more - all through ChatBoss AI or dedicated dashboard.',
+             color: 'text-pink-600 dark:text-pink-400',
+             bgColor: 'bg-pink-50 dark:pink-900/20',
+           },
     {
       icon: Shield,
       title: 'Enterprise Security',

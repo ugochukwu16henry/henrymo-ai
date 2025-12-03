@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/layout/user-menu';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import {
   LayoutDashboard,
   User,
@@ -149,6 +150,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           </Button>
 
           <div className="flex flex-1 items-center justify-end gap-4">
+            <ThemeToggle />
             <UserMenu />
           </div>
         </header>

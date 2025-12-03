@@ -142,17 +142,20 @@ export default function StreetsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Streets Platform
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Discover and contribute to the global street database
-          </p>
-        </div>
-        <div className="flex gap-2">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      {/* Header */}
+      <div className="border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+        <div className="container mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Streets Platform
+              </h1>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">
+                Discover and contribute to the global street database
+              </p>
+            </div>
+            <div className="flex gap-2">
           <Link href="/dashboard/streets/upload">
             <Button variant="outline">
               <Upload className="mr-2 h-4 w-4" />
@@ -357,6 +360,7 @@ export default function StreetsPage() {
             )}
           </>
         )}
+      </div>
       </div>
     </div>
   );

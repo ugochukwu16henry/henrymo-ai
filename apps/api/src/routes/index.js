@@ -35,6 +35,7 @@ const trainingRoutes = require('./training'); // Stage 8
 const monitoringRoutes = require('./monitoring'); // Stage 8
 const consoleRoutes = require('./console'); // Stage 8
 const socialMediaRoutes = require('./socialMedia'); // Social Media Management
+const apiKeysRoutes = require('./apiKeys'); // API Keys Management
 
 // Register routes
 router.use('/auth', authRoutes);
