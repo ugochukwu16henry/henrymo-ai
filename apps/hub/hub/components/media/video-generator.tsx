@@ -58,7 +58,7 @@ export function VideoGenerator() {
         setGeneratedVideo(response.data);
         toast.success('Video generated successfully!');
         loadRecentVideos();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to generate video');
       }
     } catch (error) {
@@ -91,7 +91,7 @@ export function VideoGenerator() {
           setGeneratedVideo(null);
         }
         loadRecentVideos();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to delete video');
       }
     } catch (error) {

@@ -45,7 +45,7 @@ export function ContributionList({ userId, streetId, status, onContributionClick
         setContributions(response.data.contributions);
         setTotal(response.data.pagination.total);
         setOffset(customOffset);
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to load contributions');
       }
     } catch (error) {

@@ -59,7 +59,7 @@ export default function TrainingDashboardPage() {
       if (response.success) {
         toast.success('Training started');
         loadSessions();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to start training');
       }
     } catch (error) {
@@ -74,7 +74,7 @@ export default function TrainingDashboardPage() {
       if (response.success) {
         toast.success('Training paused');
         loadSessions();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to pause training');
       }
     } catch (error) {
@@ -89,7 +89,7 @@ export default function TrainingDashboardPage() {
       if (response.success) {
         toast.success('Model exported successfully');
         loadSessions();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to export model');
       }
     } catch (error) {

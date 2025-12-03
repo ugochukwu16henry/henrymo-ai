@@ -56,7 +56,7 @@ export default function SettingsPage() {
       if (response.success) {
         toast.success('Password changed successfully!');
         reset();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to change password');
       }
     } catch (error) {

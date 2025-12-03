@@ -62,7 +62,7 @@ export function ImageGenerator() {
         toast.success('Image generated successfully!');
         // Refresh recent images
         loadRecentImages();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to generate image');
       }
     } catch (error) {
@@ -95,7 +95,7 @@ export function ImageGenerator() {
           setGeneratedImage(null);
         }
         loadRecentImages();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to delete image');
       }
     } catch (error) {

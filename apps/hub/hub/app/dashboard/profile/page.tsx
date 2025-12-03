@@ -60,7 +60,7 @@ export default function ProfilePage() {
       if (response.success) {
         setUser(response.data);
         toast.success('Profile updated successfully!');
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to update profile');
       }
     } catch (error) {

@@ -70,7 +70,7 @@ export default function ModuleManagementPage() {
       if (response.success) {
         toast.success('Module frozen');
         loadData();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to freeze module');
       }
     } catch (error) {
@@ -85,7 +85,7 @@ export default function ModuleManagementPage() {
       if (response.success) {
         toast.success('Module unfrozen');
         loadData();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to unfreeze module');
       }
     } catch (error) {

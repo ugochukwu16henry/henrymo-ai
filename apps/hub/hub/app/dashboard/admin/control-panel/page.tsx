@@ -44,7 +44,7 @@ export default function SuperAdminControlPanel() {
       const response = await selfImprovementApi.getPendingProposals();
       if (response.success && response.data) {
         setProposals(response.data);
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to load proposals');
       }
     } catch (error) {
@@ -61,7 +61,7 @@ export default function SuperAdminControlPanel() {
       if (response.success) {
         toast.success('Proposal approved');
         loadProposals();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to approve proposal');
       }
     } catch (error) {
@@ -76,7 +76,7 @@ export default function SuperAdminControlPanel() {
       if (response.success) {
         toast.success('Proposal rejected');
         loadProposals();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to reject proposal');
       }
     } catch (error) {
@@ -91,7 +91,7 @@ export default function SuperAdminControlPanel() {
       if (response.success) {
         toast.success('Sandbox testing completed');
         loadProposals();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to test proposal');
       }
     } catch (error) {

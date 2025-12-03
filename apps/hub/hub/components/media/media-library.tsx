@@ -11,15 +11,15 @@ import Image from 'next/image';
 
 type MediaType = 'all' | 'images' | 'videos';
 
+type MediaItem = (GeneratedImage & { type: 'image' }) | (GeneratedVideo & { type: 'video' });
+
 export function MediaLibrary() {
   const [mediaType, setMediaType] = useState<MediaType>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [videos, setVideos] = useState<GeneratedVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedMedia, setSelectedMedia] = useState<
-    (GeneratedImage | GeneratedVideo) | null
-  >(null);
+  const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
 
   const loadMedia = async () => {
     setIsLoading(true);
@@ -60,7 +60,7 @@ export function MediaLibrary() {
         if (selectedMedia?.id === id) {
           setSelectedMedia(null);
         }
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to delete');
       }
     } catch (error) {
@@ -86,7 +86,7 @@ export function MediaLibrary() {
     searchQuery === ''
   );
 
-  const allMedia = [
+  const allMedia: MediaItem[] = [
     ...filteredImages.map((img) => ({ ...img, type: 'image' as const })),
     ...filteredVideos.map((vid) => ({ ...vid, type: 'video' as const })),
   ].sort((a, b) => {

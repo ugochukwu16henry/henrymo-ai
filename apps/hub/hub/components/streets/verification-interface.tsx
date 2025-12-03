@@ -55,7 +55,7 @@ export function VerificationInterface({ contribution, onVerified }: Verification
         setVerdict(null);
         setComment('');
         setConfidenceScore(0.8);
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to verify contribution');
       }
     } catch (error) {

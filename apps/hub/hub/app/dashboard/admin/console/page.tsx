@@ -90,7 +90,7 @@ export default function DeveloperConsolePage() {
         setOutput(response.data.output || 'Command executed successfully');
         setCommand('');
         loadCommandHistory();
-      } else {
+      } else if (!response.success) {
         setOutput(response.error || 'Command execution failed');
       }
     } catch (error: any) {

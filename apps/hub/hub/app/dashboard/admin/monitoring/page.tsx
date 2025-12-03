@@ -70,7 +70,7 @@ export default function MonitoringDashboardPage() {
       if (response.success) {
         toast.success('Diagnostic marked as fixed');
         loadData();
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to mark as fixed');
       }
     } catch (error) {
