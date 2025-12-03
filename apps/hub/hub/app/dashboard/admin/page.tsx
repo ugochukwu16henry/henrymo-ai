@@ -67,8 +67,10 @@ export default function SuperAdminDashboard() {
   }, [user, router]);
 
   useEffect(() => {
-    loadPlatformStats();
-  }, []);
+    if (user && (user.role === 'super_admin' || user.role === 'admin')) {
+      loadPlatformStats();
+    }
+  }, [user]);
 
   const loadPlatformStats = async () => {
     try {
@@ -78,10 +80,17 @@ export default function SuperAdminDashboard() {
       if (response.success && response.data) {
         setStats(response.data);
       } else {
-        toast.error(response.error || 'Failed to load platform statistics');
+        const errorMsg = response.error || 'Failed to load platform statistics';
+        toast.error(errorMsg);
+        console.error('Admin API error:', errorMsg);
+        // Don't show error if it's an auth issue (will redirect)
+        if (!errorMsg.includes('Authentication') && !errorMsg.includes('login')) {
+          console.error('Full response:', response);
+        }
       }
     } catch (error) {
-      toast.error('Failed to load platform statistics');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load platform statistics';
+      toast.error(errorMessage);
       console.error('Error loading stats:', error);
     } finally {
       setIsLoading(false);

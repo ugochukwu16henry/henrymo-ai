@@ -596,15 +596,16 @@ class AdminService {
 
       // Get total users
       const totalUsersResult = await db.query('SELECT COUNT(*) as total FROM users');
-      const totalUsers = parseInt(totalUsersResult.rows[0].total);
+      const totalUsers = parseInt(totalUsersResult.rows[0]?.total || 0);
 
-      // Get active users (logged in last 30 days)
+      // Get active users (logged in last 30 days) - handle null last_login_at
       const activeUsersResult = await db.query(
         `SELECT COUNT(*) as total 
          FROM users 
-         WHERE last_login_at > CURRENT_TIMESTAMP - INTERVAL '30 days'`
+         WHERE last_login_at IS NOT NULL 
+         AND last_login_at > CURRENT_TIMESTAMP - INTERVAL '30 days'`
       );
-      const activeUsers = parseInt(activeUsersResult.rows[0].total);
+      const activeUsers = parseInt(activeUsersResult.rows[0]?.total || 0);
 
       // Get subscription counts
       const subscriptionCountsResult = await db.query(
@@ -613,37 +614,62 @@ class AdminService {
          GROUP BY subscription_tier`
       );
 
-      // Get recent activity (last 7 days)
-      const recentActivityResult = await db.query(
-        `SELECT COUNT(*) as total 
-         FROM audit_logs 
-         WHERE created_at > CURRENT_TIMESTAMP - INTERVAL '7 days'`
-      );
-      const recentActivity = parseInt(recentActivityResult.rows[0].total);
+      // Get recent activity (last 7 days) - handle if audit_logs table doesn't exist or is empty
+      let recentActivity = 0;
+      try {
+        const recentActivityResult = await db.query(
+          `SELECT COUNT(*) as total 
+           FROM audit_logs 
+           WHERE created_at > CURRENT_TIMESTAMP - INTERVAL '7 days'`
+        );
+        recentActivity = parseInt(recentActivityResult.rows[0]?.total || 0);
+      } catch (err) {
+        // If audit_logs table doesn't exist or has issues, set to 0
+        logger.warn('Could not fetch audit logs for analytics', { error: err.message });
+        recentActivity = 0;
+      }
 
-      // Get contribution stats
-      const contributionStatsResult = await db.query(
-        `SELECT 
-          COUNT(*) as total,
-          COUNT(*) FILTER (WHERE status = 'verified') as verified,
-          COUNT(*) FILTER (WHERE status = 'pending') as pending,
-          COUNT(*) FILTER (WHERE status = 'rejected') as rejected
-         FROM contributions`
-      );
-      const contributionStats = contributionStatsResult.rows[0];
+      // Get contribution stats - handle if contributions table doesn't exist or is empty
+      let contributionStats = {
+        total: 0,
+        verified: 0,
+        pending: 0,
+        rejected: 0,
+      };
+      try {
+        const contributionStatsResult = await db.query(
+          `SELECT 
+            COUNT(*) as total,
+            COUNT(*) FILTER (WHERE status = 'verified') as verified,
+            COUNT(*) FILTER (WHERE status = 'pending') as pending,
+            COUNT(*) FILTER (WHERE status = 'rejected') as rejected
+           FROM contributions`
+        );
+        if (contributionStatsResult.rows.length > 0) {
+          contributionStats = {
+            total: parseInt(contributionStatsResult.rows[0].total || 0),
+            verified: parseInt(contributionStatsResult.rows[0].verified || 0),
+            pending: parseInt(contributionStatsResult.rows[0].pending || 0),
+            rejected: parseInt(contributionStatsResult.rows[0].rejected || 0),
+          };
+        }
+      } catch (err) {
+        // If contributions table doesn't exist or has issues, use defaults
+        logger.warn('Could not fetch contribution stats for analytics', { error: err.message });
+      }
 
       return {
         users: {
           total: totalUsers,
           active: activeUsers,
           byRole: userCountsResult.rows.reduce((acc, row) => {
-            acc[row.role] = parseInt(row.count);
+            acc[row.role] = parseInt(row.count || 0);
             return acc;
           }, {}),
         },
         subscriptions: {
           byTier: subscriptionCountsResult.rows.reduce((acc, row) => {
-            acc[row.subscription_tier] = parseInt(row.count);
+            acc[row.subscription_tier] = parseInt(row.count || 0);
             return acc;
           }, {}),
         },
@@ -651,14 +677,14 @@ class AdminService {
           recent: recentActivity,
         },
         contributions: {
-          total: parseInt(contributionStats.total),
-          verified: parseInt(contributionStats.verified),
-          pending: parseInt(contributionStats.pending),
-          rejected: parseInt(contributionStats.rejected),
+          total: contributionStats.total,
+          verified: contributionStats.verified,
+          pending: contributionStats.pending,
+          rejected: contributionStats.rejected,
         },
       };
     } catch (error) {
-      logger.error('Error fetching platform analytics', { error: error.message });
+      logger.error('Error fetching platform analytics', { error: error.message, stack: error.stack });
       throw error;
     }
   }

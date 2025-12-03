@@ -106,32 +106,32 @@ export const aiApi = {
 
       clearTimeout(timeoutId);
 
-        if (!response.ok) {
-          let errorMessage = `Failed to start streaming: ${response.status} ${response.statusText}`;
+      if (!response.ok) {
+        let errorMessage = `Failed to start streaming: ${response.status} ${response.statusText}`;
+        try {
+          const error = await response.json();
+          errorMessage = error.error || error.message || errorMessage;
+        } catch (e) {
+          // If JSON parsing fails, try to get text
           try {
-            const error = await response.json();
-            errorMessage = error.error || error.message || errorMessage;
-          } catch (e) {
-            // If JSON parsing fails, try to get text
-            try {
-              const text = await response.text();
-              if (text) errorMessage = text;
-            } catch (e2) {
-              // Ignore
-            }
+            const text = await response.text();
+            if (text) errorMessage = text;
+          } catch (e2) {
+            // Ignore
           }
-          
-          // Provide more helpful error messages
-          if (response.status === 401) {
-            errorMessage = 'Authentication failed. Please login again.';
-          } else if (response.status === 403) {
-            errorMessage = 'Access denied. Please check your API keys.';
-          } else if (response.status === 500) {
-            errorMessage = 'Server error. The AI service may be experiencing issues.';
-          }
-          
-          throw new Error(errorMessage);
         }
+        
+        // Provide more helpful error messages
+        if (response.status === 401) {
+          errorMessage = 'Authentication failed. Please login again.';
+        } else if (response.status === 403) {
+          errorMessage = 'Access denied. Please check your API keys.';
+        } else if (response.status === 500) {
+          errorMessage = 'Server error. The AI service may be experiencing issues.';
+        }
+        
+        throw new Error(errorMessage);
+      }
 
       reader = response.body?.getReader() || null;
       const decoder = new TextDecoder();
