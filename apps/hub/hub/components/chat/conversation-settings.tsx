@@ -34,6 +34,19 @@ export function ConversationSettings({
     loadProviders();
   }, []);
 
+  useEffect(() => {
+    // Update settings when conversation changes
+    if (conversation) {
+      setSettings({
+        title: conversation.title || '',
+        mode: conversation.mode || 'general',
+        provider: conversation.provider || 'anthropic',
+        model: conversation.model || '',
+        temperature: 1.0,
+      });
+    }
+  }, [conversation]);
+
   const loadProviders = async () => {
     try {
       const response = await aiApi.getProviders();
@@ -43,10 +56,17 @@ export function ConversationSettings({
         if (!settings.model && response.data.length > 0) {
           const defaultProvider = response.data.find((p) => p.id === settings.provider);
           if (defaultProvider && defaultProvider.models.length > 0) {
+            const defaultModel = defaultProvider.models[0];
             setSettings((prev) => ({
               ...prev,
-              model: defaultProvider.models[0],
+              model: defaultModel,
             }));
+            // Also update conversation if it exists
+            if (conversation && !conversation.model) {
+              conversationsApi.updateConversation(conversation.id, {
+                model: defaultModel,
+              }).catch(console.error);
+            }
           }
         }
       }

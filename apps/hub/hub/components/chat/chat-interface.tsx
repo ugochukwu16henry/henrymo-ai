@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { MessageList } from './message-list';
 import { InputArea } from './input-area';
 import { ConversationList } from './conversation-list';
@@ -85,9 +87,24 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
 
   const handleCreateConversation = async () => {
     try {
+      // Get available providers to set default model
+      const providersResponse = await aiApi.getProviders();
+      let defaultProvider = 'anthropic';
+      let defaultModel: string | null = null;
+
+      if (providersResponse.success && providersResponse.data && providersResponse.data.length > 0) {
+        // Prefer Anthropic if available, otherwise use first available
+        const anthropic = providersResponse.data.find((p) => p.id === 'anthropic');
+        const selectedProvider = anthropic || providersResponse.data[0];
+        defaultProvider = selectedProvider.id;
+        defaultModel = selectedProvider.models[0] || null;
+      }
+
       const response = await conversationsApi.createConversation({
         title: null,
         mode: 'general',
+        provider: defaultProvider,
+        model: defaultModel,
       });
 
       if (response.success && response.data) {
@@ -124,8 +141,29 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
 
       // Get conversation to get provider/model settings
       const conversation = conversations.find((c) => c.id === conversationId);
-      const provider = conversation?.provider || 'anthropic';
-      const model = conversation?.model || undefined;
+      let provider = conversation?.provider || 'anthropic';
+      let model = conversation?.model || undefined;
+
+      // If model is not set, get default model for provider
+      if (!model) {
+        try {
+          const providersResponse = await aiApi.getProviders();
+          if (providersResponse.success && providersResponse.data) {
+            const selectedProvider = providersResponse.data.find((p) => p.id === provider);
+            if (selectedProvider && selectedProvider.models.length > 0) {
+              model = selectedProvider.models[0];
+              // Update conversation with default model
+              if (conversation && !conversation.model) {
+                await conversationsApi.updateConversation(conversationId, {
+                  model,
+                });
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error getting default model:', error);
+        }
+      }
 
       // Create user message
       const userMessageResponse = await conversationsApi.createMessage(conversationId, {
@@ -305,9 +343,12 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
                   'New Conversation'}
               </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {conversations.find((c) => c.id === selectedConversationId)?.provider || 'anthropic'}
-                {' • '}
-                {conversations.find((c) => c.id === selectedConversationId)?.model || 'default'}
+                {(() => {
+                  const conv = conversations.find((c) => c.id === selectedConversationId);
+                  const provider = conv?.provider || 'anthropic';
+                  const model = conv?.model || 'Select model';
+                  return `${provider} • ${model}`;
+                })()}
               </p>
             </div>
             <Button
