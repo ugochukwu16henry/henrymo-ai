@@ -95,6 +95,7 @@ router.get('/', (req, res) => {
       training: '/api/training',
       monitoring: '/api/monitoring',
       console: '/api/console',
+      socialMedia: '/api/social-media',
       health: '/api/health',
       info: '/api/info',
     },
