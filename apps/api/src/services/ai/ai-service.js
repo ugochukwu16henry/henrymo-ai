@@ -95,7 +95,10 @@ class AIService {
     // Check if provider is configured
     const providerConfig = config.ai[provider];
     if (!providerConfig || !providerConfig.apiKey) {
-      throw new Error(`Provider ${provider} is not configured. Please set API key.`);
+      const envVarName = provider === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY';
+      const errorMsg = `Provider ${provider} is not configured. Please set ${envVarName} in your .env file.`;
+      logger.error('AI provider not configured', { provider, envVarName });
+      throw new Error(errorMsg);
     }
 
     // Use default model if not specified
@@ -205,7 +208,10 @@ class AIService {
     // Check if provider is configured
     const providerConfig = config.ai[provider];
     if (!providerConfig || !providerConfig.apiKey) {
-      throw new Error(`Provider ${provider} is not configured. Please set API key.`);
+      const envVarName = provider === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY';
+      const errorMsg = `Provider ${provider} is not configured. Please set ${envVarName} in your .env file.`;
+      logger.error('AI provider not configured', { provider, envVarName });
+      throw new Error(errorMsg);
     }
 
     // Use default model if not specified
@@ -243,7 +249,15 @@ class AIService {
         provider,
         model: modelToUse,
         error: error.message,
+        stack: error.stack,
       });
+      
+      // Provide more helpful error messages
+      if (error.message.includes('API key') || error.message.includes('authentication') || error.message.includes('401') || error.message.includes('403')) {
+        const envVarName = provider === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY';
+        throw new Error(`API key error for ${provider}. Please check your ${envVarName} in .env file. Original error: ${error.message}`);
+      }
+      
       throw error;
     }
   }
