@@ -21,6 +21,7 @@ const imageGenerationRoutes = require('./imageGeneration');
 const videoGenerationRoutes = require('./videoGeneration');
 const streetsRoutes = require('./streets'); // Stage 6
 const contributionsRoutes = require('./contributions'); // Stage 6
+const verificationsRoutes = require('./verifications'); // Stage 6
 // const adminRoutes = require('./admin'); // Stage 7
 
 // Register routes
@@ -36,6 +37,7 @@ router.use('/media/image', imageGenerationRoutes);
 router.use('/media/video', videoGenerationRoutes);
 router.use('/content/streets', streetsRoutes); // Stage 6
 router.use('/content/contributions', contributionsRoutes); // Stage 6
+router.use('/content', verificationsRoutes); // Stage 6 - verifications routes
 // router.use('/admin', adminRoutes);
 
 // API root route
