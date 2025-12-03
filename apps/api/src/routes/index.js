@@ -58,6 +58,7 @@ router.get('/', (req, res) => {
       videoGeneration: '/api/media/video',
       streets: '/api/content/streets',
       contributions: '/api/content/contributions',
+      verifications: '/api/content/verifications',
       health: '/api/health',
       info: '/api/info',
     },

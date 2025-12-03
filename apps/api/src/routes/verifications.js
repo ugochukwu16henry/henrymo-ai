@@ -28,7 +28,7 @@ const canVerify = (user) => {
  * Verify a contribution
  */
 router.post(
-  '/:id/verify',
+  '/contributions/:id/verify',
   authenticate,
   validate({ body: verifyContributionSchema }),
   async (req, res, next) => {
