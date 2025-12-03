@@ -75,7 +75,6 @@ app.get('/api/health', async (req, res) => {
     uptime: process.uptime(),
     environment: config.nodeEnv,
     version: '1.0.0',
-    requestId: req.id,
   };
 
   // Check database health if available
