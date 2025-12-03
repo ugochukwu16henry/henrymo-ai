@@ -20,6 +20,7 @@ const uploadRoutes = require('./upload');
 const imageGenerationRoutes = require('./imageGeneration');
 const videoGenerationRoutes = require('./videoGeneration');
 const streetsRoutes = require('./streets'); // Stage 6
+const contributionsRoutes = require('./contributions'); // Stage 6
 // const adminRoutes = require('./admin'); // Stage 7
 
 // Register routes
@@ -34,6 +35,7 @@ router.use('/upload', uploadRoutes);
 router.use('/media/image', imageGenerationRoutes);
 router.use('/media/video', videoGenerationRoutes);
 router.use('/content/streets', streetsRoutes); // Stage 6
+router.use('/content/contributions', contributionsRoutes); // Stage 6
 // router.use('/admin', adminRoutes);
 
 // API root route
@@ -53,6 +55,7 @@ router.get('/', (req, res) => {
       imageGeneration: '/api/media/image',
       videoGeneration: '/api/media/video',
       streets: '/api/content/streets',
+      contributions: '/api/content/contributions',
       health: '/api/health',
       info: '/api/info',
     },

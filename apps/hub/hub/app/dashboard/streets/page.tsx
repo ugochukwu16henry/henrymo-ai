@@ -63,12 +63,7 @@ export default function StreetsPage() {
     }
   }, [selectedState, selectedCountry]);
 
-  // Load streets when offset changes (pagination)
-  useEffect(() => {
-    if (!isLoading && offset > 0) {
-      searchStreets();
-    }
-  }, [offset]);
+  // Note: Search is triggered by form submit or pagination buttons, not useEffect
 
   const loadCountries = async () => {
     try {
@@ -103,7 +98,7 @@ export default function StreetsPage() {
     }
   };
 
-  const searchStreets = async () => {
+  const searchStreets = async (customOffset?: number) => {
     setIsSearching(true);
     setIsLoading(true);
     try {
@@ -113,7 +108,7 @@ export default function StreetsPage() {
         stateId: selectedState || undefined,
         cityId: selectedCity || undefined,
         limit,
-        offset,
+        offset: customOffset !== undefined ? customOffset : offset,
       });
 
       if (response.success && response.data) {
@@ -134,7 +129,7 @@ export default function StreetsPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setOffset(0);
-    searchStreets();
+    searchStreets(0);
   };
 
   const handleReset = () => {
@@ -319,8 +314,12 @@ export default function StreetsPage() {
               <div className="flex items-center justify-between pt-4">
                 <Button
                   variant="outline"
-                  onClick={() => setOffset(Math.max(0, offset - limit))}
-                  disabled={offset === 0}
+                  onClick={() => {
+                    const newOffset = Math.max(0, offset - limit);
+                    setOffset(newOffset);
+                    searchStreets(newOffset);
+                  }}
+                  disabled={offset === 0 || isSearching}
                 >
                   Previous
                 </Button>
@@ -329,8 +328,12 @@ export default function StreetsPage() {
                 </span>
                 <Button
                   variant="outline"
-                  onClick={() => setOffset(offset + limit)}
-                  disabled={offset + limit >= total}
+                  onClick={() => {
+                    const newOffset = offset + limit;
+                    setOffset(newOffset);
+                    searchStreets(newOffset);
+                  }}
+                  disabled={offset + limit >= total || isSearching}
                 >
                   Next
                 </Button>
