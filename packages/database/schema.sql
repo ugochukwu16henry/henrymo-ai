@@ -137,6 +137,65 @@ CREATE INDEX idx_code_analyses_type ON code_analyses(analysis_type);
 CREATE INDEX idx_code_analyses_language ON code_analyses(language);
 CREATE INDEX idx_code_analyses_created_at ON code_analyses(created_at);
 
+-- ----------------------------------------------------------------------------
+-- Debugging Sessions Table
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS debugging_sessions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    error_message TEXT NOT NULL,
+    stack_trace TEXT,
+    language VARCHAR(50) NOT NULL,
+    result JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_debugging_sessions_user_id ON debugging_sessions(user_id);
+CREATE INDEX idx_debugging_sessions_language ON debugging_sessions(language);
+CREATE INDEX idx_debugging_sessions_created_at ON debugging_sessions(created_at);
+
+-- ----------------------------------------------------------------------------
+-- Files Table
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS files (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    original_name VARCHAR(500) NOT NULL,
+    s3_key VARCHAR(1000) NOT NULL,
+    s3_url TEXT NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    file_size BIGINT NOT NULL,
+    folder VARCHAR(100) DEFAULT 'uploads',
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_files_user_id ON files(user_id);
+CREATE INDEX idx_files_folder ON files(folder);
+CREATE INDEX idx_files_mime_type ON files(mime_type);
+CREATE INDEX idx_files_created_at ON files(created_at);
+
+-- ----------------------------------------------------------------------------
+-- Generated Images Table
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS generated_images (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    prompt TEXT NOT NULL,
+    revised_prompt TEXT,
+    s3_key VARCHAR(1000) NOT NULL,
+    s3_url TEXT NOT NULL,
+    original_url TEXT,
+    size VARCHAR(20) DEFAULT '1024x1024',
+    style VARCHAR(50) DEFAULT 'realistic',
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_generated_images_user_id ON generated_images(user_id);
+CREATE INDEX idx_generated_images_style ON generated_images(style);
+CREATE INDEX idx_generated_images_created_at ON generated_images(created_at);
+
 -- ============================================================================
 -- STREETS PLATFORM TABLES
 -- ============================================================================

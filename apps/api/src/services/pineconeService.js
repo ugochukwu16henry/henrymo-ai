@@ -50,15 +50,41 @@ class PineconeService {
         
         if (!indexExists) {
           logger.info(`Creating Pinecone index: ${indexName}`);
-          await this.client.createIndex({
-            name: indexName,
-            dimension: 1536, // text-embedding-3-small dimension
-            metric: 'cosine',
-          });
-          
-          // Wait for index to be ready
-          logger.info('Waiting for index to be ready...');
-          await new Promise(resolve => setTimeout(resolve, 10000));
+          try {
+            await this.client.createIndex({
+              name: indexName,
+              dimension: 1536, // text-embedding-3-small dimension
+              metric: 'cosine',
+              spec: {
+                serverless: {
+                  cloud: 'aws',
+                  region: 'us-east-1',
+                },
+              },
+            });
+            
+            // Wait for index to be ready
+            logger.info('Waiting for index to be ready...');
+            await new Promise(resolve => setTimeout(resolve, 10000));
+          } catch (createError) {
+            // If creation fails, try without spec (for older Pinecone accounts)
+            logger.warn('Failed to create index with serverless spec, trying without spec', {
+              error: createError.message,
+            });
+            try {
+              await this.client.createIndex({
+                name: indexName,
+                dimension: 1536,
+                metric: 'cosine',
+              });
+              await new Promise(resolve => setTimeout(resolve, 10000));
+            } catch (retryError) {
+              logger.error('Failed to create Pinecone index', {
+                error: retryError.message,
+              });
+              // Continue anyway - index might already exist or be created manually
+            }
+          }
         }
 
         this.index = this.client.index(indexName);

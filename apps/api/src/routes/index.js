@@ -15,6 +15,9 @@ const aiRoutes = require('./ai');
 const conversationRoutes = require('./conversations');
 const memoryRoutes = require('./memory');
 const codeAnalysisRoutes = require('./codeAnalysis');
+const debuggingRoutes = require('./debugging');
+const uploadRoutes = require('./upload');
+const imageGenerationRoutes = require('./imageGeneration');
 // const adminRoutes = require('./admin'); // Stage 7
 
 // Register routes
@@ -24,6 +27,9 @@ router.use('/ai', aiRoutes);
 router.use('/conversations', conversationRoutes);
 router.use('/memory', memoryRoutes);
 router.use('/ai-capabilities/analyze', codeAnalysisRoutes);
+router.use('/ai-capabilities/debug', debuggingRoutes);
+router.use('/upload', uploadRoutes);
+router.use('/media/image', imageGenerationRoutes);
 // router.use('/admin', adminRoutes);
 
 // API root route
@@ -38,6 +44,9 @@ router.get('/', (req, res) => {
       conversations: '/api/conversations',
       memory: '/api/memory',
       codeAnalysis: '/api/ai-capabilities/analyze',
+      debugging: '/api/ai-capabilities/debug',
+      upload: '/api/upload',
+      imageGeneration: '/api/media/image',
       health: '/api/health',
       info: '/api/info',
     },

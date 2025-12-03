@@ -120,19 +120,51 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
   };
 
   const handleSendMessage = async (content: string) => {
-    if (!selectedConversationId) {
+    let conversationId = selectedConversationId;
+
+    if (!conversationId) {
       // Create new conversation if none selected
-      await handleCreateConversation();
-      // Wait a bit for conversation to be created
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      // Retry sending message
-      if (selectedConversationId) {
-        await sendMessageToConversation(selectedConversationId, content);
+      try {
+        // Get available providers to set default model
+        const providersResponse = await aiApi.getProviders();
+        let defaultProvider = 'anthropic';
+        let defaultModel: string | null = null;
+
+        if (providersResponse.success && providersResponse.data && providersResponse.data.length > 0) {
+          // Prefer Anthropic if available, otherwise use first available
+          const anthropic = providersResponse.data.find((p) => p.id === 'anthropic');
+          const selectedProvider = anthropic || providersResponse.data[0];
+          defaultProvider = selectedProvider.id;
+          defaultModel = selectedProvider.models[0] || null;
+        }
+
+        const response = await conversationsApi.createConversation({
+          title: null,
+          mode: 'general',
+          provider: defaultProvider,
+          model: defaultModel,
+        });
+
+        if (response.success && response.data) {
+          const newConversation = response.data;
+          setConversations((prev) => [newConversation, ...prev]);
+          setSelectedConversationId(newConversation.id);
+          setMessages([]);
+          conversationId = newConversation.id;
+        } else {
+          toast.error('Failed to create conversation');
+          return;
+        }
+      } catch (error) {
+        toast.error('Failed to create conversation');
+        console.error('Error creating conversation:', error);
+        return;
       }
-      return;
     }
 
-    await sendMessageToConversation(selectedConversationId, content);
+    if (conversationId) {
+      await sendMessageToConversation(conversationId, content);
+    }
   };
 
   const sendMessageToConversation = async (conversationId: string, content: string) => {
@@ -393,7 +425,7 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
         <InputArea
           onSend={handleSendMessage}
           isLoading={isSending || isStreaming}
-          disabled={!selectedConversationId && conversations.length === 0}
+          disabled={false}
         />
       </div>
 
