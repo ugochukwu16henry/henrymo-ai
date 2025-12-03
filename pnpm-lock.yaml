@@ -244,12 +244,18 @@ importers:
 
   packages/database:
     dependencies:
+      bcryptjs:
+        specifier: ^2.4.3
+        version: 2.4.3
       dotenv:
         specifier: ^16.4.1
         version: 16.6.1
       pg:
         specifier: ^8.11.3
         version: 8.16.3
+      uuid:
+        specifier: ^9.0.1
+        version: 9.0.1
     devDependencies:
       '@types/pg':
         specifier: ^8.10.9
