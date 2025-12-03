@@ -23,7 +23,7 @@ if (process.env.NODE_ENV !== 'test') {
     const emailScheduler = require('./jobs/emailScheduler');
     emailScheduler.start();
   } catch (error) {
-    console.warn('Email scheduler not started:', error.message);
+    logger.warn('Email scheduler not started', { error: error.message });
   }
 }
 
@@ -155,9 +155,9 @@ const server = app.listen(PORT, () => {
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
+  logger.info('SIGTERM signal received: closing HTTP server');
   server.close(() => {
-    console.log('HTTP server closed');
+    logger.info('HTTP server closed');
     process.exit(0);
   });
 });
@@ -165,7 +165,7 @@ process.on('SIGTERM', () => {
 process.on('SIGINT', () => {
   logger.info('SIGINT signal received: closing HTTP server');
   server.close(() => {
-    console.log('HTTP server closed');
+    logger.info('HTTP server closed');
     process.exit(0);
   });
 });

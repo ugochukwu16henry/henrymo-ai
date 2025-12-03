@@ -3,16 +3,8 @@
  * Manages countries, states, and cities
  */
 
-const { Pool } = require('pg');
+const db = require('../config/database');
 const logger = require('../utils/logger');
-
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5433'),
-  database: process.env.DB_NAME || 'henmo_ai_dev',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-});
 
 class LocationService {
   /**

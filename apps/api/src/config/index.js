@@ -19,6 +19,7 @@ const validateEnv = () => {
   const missing = required.filter(key => !process.env[key]);
 
   if (missing.length > 0) {
+    // Use console.error here since logger might not be initialized yet
     console.error(`Missing required environment variables: ${missing.join(', ')}`);
     console.error('Please check your .env file');
     process.exit(1);

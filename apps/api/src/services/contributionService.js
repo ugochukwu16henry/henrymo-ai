@@ -167,7 +167,7 @@ class ContributionService {
       const contribution = result.rows[0];
 
       // Get images for this contribution
-      const imagesResult = await pool.query(
+      const imagesResult = await db.query(
         'SELECT * FROM images WHERE contribution_id = $1 ORDER BY created_at ASC',
         [id]
       );
@@ -241,7 +241,7 @@ class ContributionService {
         conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
       // Get total count
-      const countResult = await pool.query(
+      const countResult = await db.query(
         `SELECT COUNT(*) as total FROM contributions c ${whereClause}`,
         values
       );
@@ -264,7 +264,7 @@ class ContributionService {
 
       const contributions = await Promise.all(
         result.rows.map(async (row) => {
-          const imagesResult = await pool.query(
+          const imagesResult = await db.query(
             'SELECT * FROM images WHERE contribution_id = $1 ORDER BY created_at ASC LIMIT 1',
             [row.id]
           );

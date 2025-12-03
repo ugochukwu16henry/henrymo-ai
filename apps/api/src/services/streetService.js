@@ -3,16 +3,8 @@
  * Manages street CRUD operations and search
  */
 
-const { Pool } = require('pg');
+const db = require('../config/database');
 const logger = require('../utils/logger');
-
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5433'),
-  database: process.env.DB_NAME || 'henmo_ai_dev',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-});
 
 class StreetService {
   /**
@@ -305,7 +297,7 @@ class StreetService {
    */
   async incrementContributionCount(id) {
     try {
-      await pool.query(
+      await db.query(
         `UPDATE streets 
          SET contribution_count = contribution_count + 1,
              last_contribution_at = CURRENT_TIMESTAMP,
