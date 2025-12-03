@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MessageList } from './message-list';
@@ -10,12 +11,15 @@ import { ConversationSettings } from './conversation-settings';
 import { conversationsApi, type Conversation, type Message } from '@/lib/api/conversations';
 import { aiApi } from '@/lib/api/ai';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/auth-store';
 
 interface ChatInterfaceProps {
   initialConversationId?: string | null;
 }
 
 export function ChatInterface({ initialConversationId = null }: ChatInterfaceProps) {
+  const router = useRouter();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(
     initialConversationId
@@ -57,6 +61,9 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
         if (!selectedConversationId && response.data.length > 0) {
           setSelectedConversationId(response.data[0].id);
         }
+      } else if (response.error?.includes('Authentication') || response.error?.includes('login')) {
+        // Token is invalid, redirect will happen automatically via API client
+        return;
       }
     } catch (error) {
       toast.error('Failed to load conversations');
@@ -112,6 +119,15 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
         setConversations((prev) => [newConversation, ...prev]);
         setSelectedConversationId(newConversation.id);
         setMessages([]);
+      } else {
+        const errorMsg = response.error || 'Failed to create conversation';
+        toast.error(errorMsg);
+        console.error('Error creating conversation:', response);
+        
+        // If authentication error, redirect to login
+        if (errorMsg.includes('Authentication') || errorMsg.includes('login')) {
+          router.push('/login');
+        }
       }
     } catch (error) {
       toast.error('Failed to create conversation');
@@ -152,7 +168,14 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
           setMessages([]);
           conversationId = newConversation.id;
         } else {
-          toast.error('Failed to create conversation');
+          const errorMsg = response.error || 'Failed to create conversation';
+          toast.error(errorMsg);
+          console.error('Error creating conversation:', response);
+          
+          // If authentication error, redirect to login
+          if (errorMsg.includes('Authentication') || errorMsg.includes('login')) {
+            router.push('/login');
+          }
           return;
         }
       } catch (error) {
@@ -304,11 +327,24 @@ export function ChatInterface({ initialConversationId = null }: ChatInterfacePro
         },
         (error) => {
           console.error('AI streaming error:', error);
-          toast.error(`AI Error: ${error}. Please check your API keys and try again.`);
+          const errorMsg = error || 'Unknown error occurred';
+          toast.error(`AI Error: ${errorMsg}. Please check your API keys and try again.`);
           setIsStreaming(false);
           setStreamingMessageId(null);
-          // Remove failed message
-          setMessages((prev) => prev.filter((msg) => msg.id !== assistantMessageId));
+          
+          // Keep the message with error content if we have partial content
+          if (fullContent.trim()) {
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === assistantMessageId
+                  ? { ...msg, content: `${fullContent}\n\n[Error: ${errorMsg}]` }
+                  : msg
+              )
+            );
+          } else {
+            // Remove failed message if no content
+            setMessages((prev) => prev.filter((msg) => msg.id !== assistantMessageId));
+          }
         }
       );
     } catch (error) {

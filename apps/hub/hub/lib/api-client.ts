@@ -56,9 +56,14 @@ async function request<T>(
   // Add auth token if required
   if (requireAuth) {
     const token = getAuthToken();
-    if (token) {
-      requestHeaders['Authorization'] = `Bearer ${token}`;
+    if (!token) {
+      // Token is required but missing - return error immediately
+      return {
+        success: false,
+        error: 'Authentication required. Please login again.',
+      };
     }
+    requestHeaders['Authorization'] = `Bearer ${token}`;
   }
 
   const config: RequestInit = {
@@ -88,6 +93,18 @@ async function request<T>(
 
     // Handle error responses
     if (!response.ok) {
+      // If 401 Unauthorized, clear token and redirect to login
+      if (response.status === 401 && requireAuth) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
+          // Redirect to login after a short delay
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 100);
+        }
+      }
+
       return {
         success: false,
         error: (data as ApiError).error || `HTTP ${response.status}`,

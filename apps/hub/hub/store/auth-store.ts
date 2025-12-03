@@ -88,7 +88,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         console.error('Failed to parse user from localStorage', e);
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+        });
       }
+    } else {
+      // Clear state if token or user is missing
+      set({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+      });
     }
   },
 }));

@@ -11,10 +11,10 @@ const { z } = require('zod');
  * Create conversation schema
  */
 const createConversationSchema = z.object({
-  title: z.string().max(500).optional().nullable(),
+  title: z.union([z.string().max(500), z.null()]).optional(),
   mode: z.enum(['general', 'developer', 'learning', 'business']).optional(),
   provider: z.enum(['anthropic', 'openai', 'google']).optional(),
-  model: z.string().max(100).optional().nullable(),
+  model: z.union([z.string().max(100), z.null()]).optional(),
   metadata: z.record(z.unknown()).optional(),
 });
 
@@ -22,10 +22,10 @@ const createConversationSchema = z.object({
  * Update conversation schema
  */
 const updateConversationSchema = z.object({
-  title: z.string().max(500).optional().nullable(),
+  title: z.union([z.string().max(500), z.null()]).optional(),
   mode: z.enum(['general', 'developer', 'learning', 'business']).optional(),
   provider: z.enum(['anthropic', 'openai', 'google']).optional(),
-  model: z.string().max(100).optional().nullable(),
+  model: z.union([z.string().max(100), z.null()]).optional(),
   metadata: z.record(z.unknown()).optional(),
 });
 

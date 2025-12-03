@@ -71,95 +71,155 @@ export const aiApi = {
     onComplete?: (usage: ChatResponse['usage']) => void,
     onError?: (error: string) => void
   ) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      const error = 'Not authenticated';
+      if (onError) {
+        onError(error);
+      } else {
+        throw new Error(error);
+      }
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, 60000); // 1 minute timeout (reduced from 2 minutes)
+
+    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+    let hasCompleted = false;
+
     try {
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        throw new Error('Not authenticated');
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/ai/chat/stream`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(request),
+          signal: controller.signal,
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({
+          error: `Failed to start streaming: ${response.status} ${response.statusText}`,
+        }));
+        throw new Error(error.error || `Failed to start streaming: ${response.status}`);
       }
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+      reader = response.body?.getReader() || null;
+      const decoder = new TextDecoder();
 
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/ai/chat/stream`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(request),
-            signal: controller.signal,
-          }
-        );
+      if (!reader) {
+        throw new Error('No response body');
+      }
 
-        clearTimeout(timeoutId);
+      let buffer = '';
+      let lastChunkTime = Date.now();
+      const chunkTimeout = 30000; // 30 seconds without chunks = timeout
 
-        if (!response.ok) {
-          const error = await response.json().catch(() => ({
-            error: `Failed to start streaming: ${response.status} ${response.statusText}`,
-          }));
-          throw new Error(error.error || `Failed to start streaming: ${response.status}`);
+      while (true) {
+        // Check for chunk timeout
+        if (Date.now() - lastChunkTime > chunkTimeout) {
+          throw new Error('Stream timeout - no data received for 30 seconds');
         }
 
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
+        const { done, value } = await reader.read();
 
-        if (!reader) {
-          throw new Error('No response body');
-        }
-
-        let buffer = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-
-          if (done) {
-            break;
-          }
-
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || '';
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6));
-
-                if (data.type === 'chunk') {
-                  onChunk(data.content);
-                } else if (data.type === 'done') {
-                  if (onComplete && data.usage) {
+        if (done) {
+          // If we haven't received a 'done' event, something went wrong
+          if (!hasCompleted && buffer.trim()) {
+            // Try to parse any remaining data
+            const lines = buffer.split('\n');
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  if (data.type === 'done' && onComplete && data.usage) {
+                    hasCompleted = true;
                     onComplete({
                       inputTokens: data.usage.inputTokens || 0,
                       outputTokens: data.usage.outputTokens || 0,
                     });
+                    return;
                   }
-                  return;
-                } else if (data.type === 'error') {
-                  throw new Error(data.error || 'Stream error');
+                } catch (e) {
+                  // Ignore parse errors
                 }
-              } catch (e) {
-                // Skip invalid JSON lines
-                continue;
               }
             }
           }
+          break;
         }
-      } catch (streamError) {
-        clearTimeout(timeoutId);
-        throw streamError;
+
+        lastChunkTime = Date.now();
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.trim() === '') continue;
+          
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.type === 'chunk') {
+                onChunk(data.content || '');
+              } else if (data.type === 'done') {
+                hasCompleted = true;
+                if (onComplete && data.usage) {
+                  onComplete({
+                    inputTokens: data.usage.inputTokens || 0,
+                    outputTokens: data.usage.outputTokens || 0,
+                  });
+                }
+                return;
+              } else if (data.type === 'error') {
+                throw new Error(data.error || 'Stream error');
+              }
+            } catch (e) {
+              // Skip invalid JSON lines but log in development
+              if (process.env.NODE_ENV === 'development') {
+                console.warn('Failed to parse SSE line:', line, e);
+              }
+              continue;
+            }
+          }
+        }
+      }
+
+      // If we exit the loop without completing, something went wrong
+      if (!hasCompleted) {
+        throw new Error('Stream ended unexpectedly without completion');
       }
     } catch (error) {
+      // Clean up reader if still open
+      if (reader) {
+        try {
+          await reader.cancel();
+        } catch (e) {
+          // Ignore cancel errors
+        }
+      }
+
+      clearTimeout(timeoutId);
+
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
+      
       if (error instanceof Error && error.name === 'AbortError') {
+        const timeoutError = 'Request timeout - the AI is taking too long to respond. Please try again.';
         if (onError) {
-          onError('Request timeout - the AI is taking too long to respond');
+          onError(timeoutError);
         } else {
-          throw new Error('Request timeout');
+          throw new Error(timeoutError);
         }
       } else if (onError) {
         onError(errorMessage);
