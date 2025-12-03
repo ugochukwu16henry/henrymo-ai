@@ -161,3 +161,6 @@ export const api = {
 
 export default api;
 
+// Export alias for backward compatibility
+export const apiClient = api;
+

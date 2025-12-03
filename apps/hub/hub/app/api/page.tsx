@@ -312,7 +312,7 @@ export default function ApiPage() {
                         <div className="space-y-4">
                           <div>
                             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                              Your API Key (save this - it won't be shown again)
+                              Your API Key (save this - it won&apos;t be shown again)
                             </label>
                             <div className="flex gap-2">
                               <code className="flex-1 bg-gray-100 dark:bg-gray-800 px-4 py-3 rounded-md font-mono text-sm break-all">

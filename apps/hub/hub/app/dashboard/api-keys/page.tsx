@@ -342,7 +342,7 @@ export default function ApiKeysPage() {
                                 Save this API key now!
                               </p>
                               <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                                This is the only time you'll be able to see the full key. Make sure to copy it and store it securely.
+                                This is the only time you&apos;ll be able to see the full key. Make sure to copy it and store it securely.
                               </p>
                             </div>
                           </div>
