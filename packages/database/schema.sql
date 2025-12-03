@@ -117,6 +117,26 @@ CREATE INDEX idx_ai_memory_is_pinned ON ai_memory(is_pinned);
 CREATE INDEX idx_ai_memory_tags ON ai_memory USING GIN(tags);
 CREATE INDEX idx_ai_memory_created_at ON ai_memory(created_at);
 
+-- ----------------------------------------------------------------------------
+-- Code Analyses Table
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS code_analyses (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    analysis_type VARCHAR(50) NOT NULL CHECK (analysis_type IN (
+        'code', 'security', 'performance'
+    )),
+    language VARCHAR(50) NOT NULL,
+    code_length INTEGER NOT NULL,
+    result JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_code_analyses_user_id ON code_analyses(user_id);
+CREATE INDEX idx_code_analyses_type ON code_analyses(analysis_type);
+CREATE INDEX idx_code_analyses_language ON code_analyses(language);
+CREATE INDEX idx_code_analyses_created_at ON code_analyses(created_at);
+
 -- ============================================================================
 -- STREETS PLATFORM TABLES
 -- ============================================================================
