@@ -34,6 +34,7 @@ const sandboxRoutes = require('./sandbox'); // Stage 8
 const trainingRoutes = require('./training'); // Stage 8
 const monitoringRoutes = require('./monitoring'); // Stage 8
 const consoleRoutes = require('./console'); // Stage 8
+const socialMediaRoutes = require('./socialMedia'); // Social Media Management
 
 // Register routes
 router.use('/auth', authRoutes);
@@ -61,6 +62,7 @@ router.use('/sandbox', sandboxRoutes); // Stage 8
 router.use('/training', trainingRoutes); // Stage 8
 router.use('/monitoring', monitoringRoutes); // Stage 8
 router.use('/console', consoleRoutes); // Stage 8
+router.use('/social-media', socialMediaRoutes); // Social Media Management
 
 // API root route
 router.get('/', (req, res) => {
