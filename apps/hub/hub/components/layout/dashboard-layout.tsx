@@ -18,6 +18,7 @@ import {
   Map,
   LogOut,
   Shield,
+  Share2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -31,6 +32,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'ChatBoss', href: '/dashboard/chat', icon: MessageSquare },
+    { name: 'Social Media', href: '/dashboard/social', icon: Share2 },
     { name: 'Media Studio', href: '/dashboard/media', icon: Image },
     { name: 'Streets', href: '/dashboard/streets', icon: Map },
     ...(isAdmin

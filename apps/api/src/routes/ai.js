@@ -17,6 +17,67 @@ const { z } = require('zod');
 const { validate } = require('../middleware/validate');
 
 /**
+ * Check if message is a social media command
+ */
+function isSocialMediaCommand(message) {
+  const lowerMessage = message.toLowerCase();
+  const socialKeywords = [
+    'schedule', 'post', 'social media', 'facebook', 'instagram', 'twitter', 'linkedin',
+    'analytics', 'performance', 'stats', 'engagement',
+    'inbox', 'mention', 'comment', 'message',
+    'calendar', 'content calendar',
+    'hashtag', '#',
+    'competitor', 'competition',
+    'track', 'monitor', 'analyze'
+  ];
+  
+  return socialKeywords.some(keyword => lowerMessage.includes(keyword));
+}
+
+/**
+ * Extract parameters from social media command
+ */
+function extractSocialParams(message) {
+  const params = {};
+  const lowerMessage = message.toLowerCase();
+  
+  // Extract platforms
+  const platforms = [];
+  if (lowerMessage.includes('facebook')) platforms.push('facebook');
+  if (lowerMessage.includes('instagram')) platforms.push('instagram');
+  if (lowerMessage.includes('twitter') || lowerMessage.includes('x')) platforms.push('twitter');
+  if (lowerMessage.includes('linkedin')) platforms.push('linkedin');
+  if (lowerMessage.includes('pinterest')) platforms.push('pinterest');
+  if (lowerMessage.includes('tiktok')) platforms.push('tiktok');
+  if (lowerMessage.includes('youtube')) platforms.push('youtube');
+  if (platforms.length > 0) params.platforms = platforms;
+  
+  // Extract hashtags
+  const hashtagMatches = message.match(/#\w+/g);
+  if (hashtagMatches) {
+    params.hashtags = hashtagMatches.map(h => h.replace('#', ''));
+    params.hashtag = params.hashtags[0];
+  }
+  
+  // Extract time references
+  if (lowerMessage.includes('tomorrow')) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    params.scheduledAt = tomorrow.toISOString();
+  } else if (lowerMessage.includes('today')) {
+    params.scheduledAt = new Date().toISOString();
+  }
+  
+  // Extract content (text after "saying" or "post")
+  const sayingMatch = message.match(/saying\s+(.+?)(?:\s+to|\s+for|$)/i);
+  const postMatch = message.match(/post\s+(.+?)(?:\s+to|\s+for|$)/i);
+  if (sayingMatch) params.content = sayingMatch[1].trim();
+  if (postMatch && !params.content) params.content = postMatch[1].trim();
+  
+  return params;
+}
+
+/**
  * GET /api/ai/providers
  * Get available AI providers
  */
@@ -194,14 +255,14 @@ router.post(
         try {
           // Check if this is a social media command
           const lastMessage = messages[messages.length - 1]?.content || '';
-          const isSocialCommand = this.isSocialMediaCommand(lastMessage);
+          const isSocialCommand = isSocialMediaCommand(lastMessage);
           
           if (isSocialCommand) {
             // Handle social media command directly
             const socialResult = await chatbotSocialIntegration.handleSocialCommand(
               req.user.id,
               lastMessage,
-              this.extractSocialParams(lastMessage)
+              extractSocialParams(lastMessage)
             );
             
             const responseText = chatbotSocialIntegration.generateResponse(
