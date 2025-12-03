@@ -149,7 +149,7 @@ export function ContributionUpload() {
             </div>
             <h3 className="text-lg font-semibold mb-2">Contribution Uploaded!</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Your contribution is pending verification. You'll be notified once it's reviewed.
+              Your contribution is pending verification. You&apos;ll be notified once it&apos;s reviewed.
             </p>
             <Button onClick={() => setIsSuccess(false)}>Upload Another</Button>
           </div>

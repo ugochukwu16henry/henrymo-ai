@@ -87,7 +87,7 @@ export default function SuperAdminDashboard() {
 
       if (response.success && response.data) {
         setStats(response.data);
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to load platform statistics');
       }
     } catch (error) {

@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { 
   MessageSquare, 
-  Image, 
+  Image as ImageIcon, 
   Map, 
   User, 
   Settings,
@@ -43,7 +43,7 @@ export default function DashboardPage() {
     {
       name: 'Media Studio',
       description: 'Generate images and videos with AI',
-      icon: Image,
+      icon: ImageIcon,
       href: '/dashboard/media',
       color: 'text-purple-600 dark:text-purple-400',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
@@ -109,7 +109,7 @@ export default function DashboardPage() {
                 Media Generated
               </CardTitle>
               <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <Image className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <ImageIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               </div>
             </CardHeader>
             <CardContent>
@@ -181,7 +181,7 @@ export default function DashboardPage() {
               Getting Started
             </CardTitle>
             <CardDescription>
-              New to HenryMo AI? Here's how to get started
+              New to HenryMo AI? Here&apos;s how to get started
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -115,7 +115,7 @@ export default function StreetsPage() {
       if (response.success && response.data) {
         setStreets(response.data.streets);
         setTotal(response.data.pagination.total);
-      } else {
+      } else if (!response.success) {
         toast.error(response.error || 'Failed to search streets');
       }
     } catch (error) {
