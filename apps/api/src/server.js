@@ -27,6 +27,16 @@ if (process.env.NODE_ENV !== 'test') {
   }
 }
 
+// Initialize auto-monitoring
+if (process.env.NODE_ENV !== 'test') {
+  try {
+    const autoMonitoringService = require('./services/autoMonitoringService');
+    autoMonitoringService.startMonitoring(60000); // Monitor every minute
+  } catch (error) {
+    console.warn('Auto-monitoring not started:', error.message);
+  }
+}
+
 const app = express();
 const PORT = config.port;
 

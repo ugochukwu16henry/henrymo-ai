@@ -30,6 +30,10 @@ const emailRoutes = require('./email'); // Stage 7
 const motherboardRoutes = require('./motherboard'); // Stage 8
 const selfImprovementRoutes = require('./selfImprovement'); // Stage 8
 const superAdminControlRoutes = require('./superAdminControl'); // Stage 8
+const sandboxRoutes = require('./sandbox'); // Stage 8
+const trainingRoutes = require('./training'); // Stage 8
+const monitoringRoutes = require('./monitoring'); // Stage 8
+const consoleRoutes = require('./console'); // Stage 8
 
 // Register routes
 router.use('/auth', authRoutes);
@@ -53,6 +57,10 @@ router.use('/email', emailRoutes); // Stage 7
 router.use('/motherboard', motherboardRoutes); // Stage 8
 router.use('/self-improvement', selfImprovementRoutes); // Stage 8
 router.use('/super-admin', superAdminControlRoutes); // Stage 8
+router.use('/sandbox', sandboxRoutes); // Stage 8
+router.use('/training', trainingRoutes); // Stage 8
+router.use('/monitoring', monitoringRoutes); // Stage 8
+router.use('/console', consoleRoutes); // Stage 8
 
 // API root route
 router.get('/', (req, res) => {
@@ -81,6 +89,10 @@ router.get('/', (req, res) => {
       motherboard: '/api/motherboard',
       selfImprovement: '/api/self-improvement',
       superAdminControl: '/api/super-admin',
+      sandbox: '/api/sandbox',
+      training: '/api/training',
+      monitoring: '/api/monitoring',
+      console: '/api/console',
       health: '/api/health',
       info: '/api/info',
     },
