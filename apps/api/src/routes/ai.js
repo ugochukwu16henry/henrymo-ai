@@ -10,6 +10,7 @@ const router = express.Router();
 const { authenticate } = require('../middleware/auth');
 const aiService = require('../services/ai/ai-service');
 const costTrackingService = require('../services/ai/cost-tracking-service');
+const semanticSearchService = require('../services/semanticSearchService');
 const logger = require('../utils/logger');
 const { z } = require('zod');
 const { validate } = require('../middleware/validate');
@@ -183,11 +184,54 @@ router.post(
       };
 
       try {
+        // Get relevant memories for context
+        let enhancedMessages = [...messages];
+        let relevantMemories = [];
+
+        try {
+          // Build context from recent messages
+          const recentMessages = messages.slice(-3); // Last 3 messages
+          const contextText = recentMessages
+            .map(msg => `${msg.role}: ${msg.content}`)
+            .join('\n');
+
+          // Get relevant memories
+          relevantMemories = await semanticSearchService.getRelevantMemoriesForContext(
+            req.user.id,
+            contextText,
+            {
+              maxMemories: 5,
+              minScore: 0.75,
+            }
+          );
+
+          // Inject memories into system message if available
+          if (relevantMemories.length > 0) {
+            const memoryContext = relevantMemories
+              .map((mem, idx) => `Memory ${idx + 1}: ${mem.title}\n${mem.content}`)
+              .join('\n\n');
+
+            const systemMessage = {
+              role: 'system',
+              content: `You have access to the following relevant memories from the user:\n\n${memoryContext}\n\nUse these memories to provide more personalized and context-aware responses.`,
+            };
+
+            // Add system message at the beginning
+            enhancedMessages = [systemMessage, ...messages];
+          }
+        } catch (error) {
+          // If memory retrieval fails, continue without it
+          logger.warn('Failed to retrieve memories for chat', {
+            error: error.message,
+            userId: req.user.id,
+          });
+        }
+
         const response = await aiService.streamChat(
           {
             provider,
             model,
-            messages,
+            messages: enhancedMessages,
             options,
           },
           onChunk
@@ -208,13 +252,14 @@ router.post(
           });
         }
 
-        // Send final message
+        // Send final message with memory context
         res.write(
           `data: ${JSON.stringify({
             type: 'done',
             usage: finalUsage,
             provider: response.provider,
             model: response.model,
+            memoriesUsed: relevantMemories.length,
           })}\n\n`
         );
       } catch (error) {

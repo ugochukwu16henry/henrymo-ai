@@ -8,6 +8,7 @@
 const { v4: uuidv4 } = require('uuid');
 const db = require('../config/database');
 const logger = require('../utils/logger');
+const semanticSearchService = require('./semanticSearchService');
 
 class MemoryService {
   /**
@@ -48,6 +49,20 @@ class MemoryService {
       );
 
       const memory = this.formatMemory(result.rows[0]);
+
+      // Index memory for semantic search (async, don't wait)
+      semanticSearchService.indexMemory(
+        memoryId,
+        userId,
+        title,
+        content,
+        contentType
+      ).catch(err => {
+        logger.warn('Failed to index memory', {
+          error: err.message,
+          memoryId,
+        });
+      });
 
       logger.info('Memory created', {
         memoryId,
@@ -203,7 +218,29 @@ class MemoryService {
         values
       );
 
-      return this.formatMemory(result.rows[0]);
+      const memory = this.formatMemory(result.rows[0]);
+
+      // Update index if title or content changed
+      if (updates.title || updates.content) {
+        const finalTitle = updates.title || memory.title;
+        const finalContent = updates.content || memory.content;
+        const finalContentType = updates.contentType || memory.contentType;
+
+        semanticSearchService.updateMemoryIndex(
+          memoryId,
+          userId,
+          finalTitle,
+          finalContent,
+          finalContentType
+        ).catch(err => {
+          logger.warn('Failed to update memory index', {
+            error: err.message,
+            memoryId,
+          });
+        });
+      }
+
+      return memory;
     } catch (error) {
       logger.error('Error updating memory', {
         error: error.message,
@@ -227,6 +264,14 @@ class MemoryService {
          WHERE id = $1 AND user_id = $2`,
         [memoryId, userId]
       );
+
+      // Delete from Pinecone index
+      semanticSearchService.deleteMemoryIndex(memoryId).catch(err => {
+        logger.warn('Failed to delete memory index', {
+          error: err.message,
+          memoryId,
+        });
+      });
 
       logger.info('Memory deleted', {
         memoryId,

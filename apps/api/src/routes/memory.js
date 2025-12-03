@@ -11,6 +11,7 @@ const { z } = require('zod');
 const { authenticate } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
 const memoryService = require('../services/memoryService');
+const semanticSearchService = require('../services/semanticSearchService');
 const db = require('../config/database');
 const logger = require('../utils/logger');
 const {
@@ -83,7 +84,7 @@ router.get(
 
 /**
  * GET /api/memory/search
- * Search memories
+ * Search memories (text search)
  */
 router.get(
   '/search',
@@ -116,6 +117,52 @@ router.get(
       });
     } catch (error) {
       logger.error('Error searching memories', {
+        error: error.message,
+        userId: req.user?.id,
+      });
+      next(error);
+    }
+  }
+);
+
+/**
+ * GET /api/memory/semantic-search
+ * Semantic search memories
+ */
+router.get(
+  '/semantic-search',
+  authenticate,
+  validate(
+    z.object({
+      query: z.object({
+        q: z.string().min(1, 'Search query is required'),
+        topK: z.coerce.number().int().min(1).max(50).optional(),
+        minScore: z.coerce.number().min(0).max(1).optional(),
+        contentType: z.enum(['note', 'code_snippet', 'documentation', 'conversation_summary', 'other']).optional(),
+      }),
+    })
+  ),
+  async (req, res, next) => {
+    try {
+      const { q, topK, minScore, contentType } = req.query;
+
+      const memories = await semanticSearchService.searchMemories(
+        req.user.id,
+        q,
+        {
+          topK: topK ? parseInt(topK) : 10,
+          minScore: minScore ? parseFloat(minScore) : 0.7,
+          contentType: contentType || null,
+        }
+      );
+
+      res.json({
+        success: true,
+        data: memories,
+        count: memories.length,
+      });
+    } catch (error) {
+      logger.error('Error in semantic search', {
         error: error.message,
         userId: req.user?.id,
       });
