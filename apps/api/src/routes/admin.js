@@ -5,6 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
+const { z } = require('zod');
 const adminService = require('../services/adminService');
 const { authenticate, authorize } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
@@ -34,7 +35,7 @@ router.get(
   '/users',
   authenticate,
   authorize('admin', 'super_admin'),
-  validate({ query: listUsersSchema }),
+  validate(z.object({ query: listUsersSchema })),
   async (req, res, next) => {
     try {
       const result = await adminService.listUsers(req.query);
@@ -71,7 +72,7 @@ router.post(
   '/users/:id/role',
   authenticate,
   authorize('admin', 'super_admin'),
-  validate({ body: updateUserRoleSchema }),
+  validate(z.object({ body: updateUserRoleSchema })),
   async (req, res, next) => {
     try {
       const updated = await adminService.updateUserRole(
@@ -114,7 +115,7 @@ router.post(
   '/invitations',
   authenticate,
   authorize('admin', 'super_admin'),
-  validate({ body: createInvitationSchema }),
+  validate(z.object({ body: createInvitationSchema })),
   async (req, res, next) => {
     try {
       const invitation = await adminService.createInvitation({
@@ -145,7 +146,7 @@ router.get(
   '/invitations',
   authenticate,
   authorize('admin', 'super_admin'),
-  validate({ query: listInvitationsSchema }),
+  validate(z.object({ query: listInvitationsSchema })),
   async (req, res, next) => {
     try {
       const result = await adminService.listInvitations(req.query);
@@ -204,7 +205,7 @@ router.get('/invitations/:token', async (req, res, next) => {
  */
 router.post(
   '/invitations/:token/accept',
-  validate({ body: acceptInvitationSchema }),
+  validate(z.object({ body: acceptInvitationSchema })),
   async (req, res, next) => {
     try {
       const result = await adminService.acceptInvitation(req.params.token, req.body);
@@ -258,7 +259,7 @@ router.get(
   '/audit-logs',
   authenticate,
   authorize('admin', 'super_admin'),
-  validate({ query: getAuditLogsSchema }),
+  validate(z.object({ query: getAuditLogsSchema })),
   async (req, res, next) => {
     try {
       const result = await adminService.getAuditLogs(req.query);

@@ -5,6 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
+const { z } = require('zod');
 const multer = require('multer');
 const contributionService = require('../services/contributionService');
 const imageProcessingService = require('../services/imageProcessingService');
@@ -44,7 +45,7 @@ router.post(
   '/upload',
   authenticate,
   upload.array('images', 10),
-  validate({ body: createContributionSchema }),
+  validate(z.object({ body: createContributionSchema })),
   async (req, res, next) => {
     try {
       const { streetId, latitude, longitude, streetName, notes } = req.body;
@@ -111,7 +112,7 @@ router.post(
 router.get(
   '/',
   authenticate,
-  validate({ query: listContributionsSchema }),
+  validate(z.object({ query: listContributionsSchema })),
   async (req, res, next) => {
     try {
       const result = await contributionService.listContributions(req.query);
@@ -171,7 +172,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
 router.put(
   '/:id',
   authenticate,
-  validate({ body: updateContributionSchema }),
+  validate(z.object({ body: updateContributionSchema })),
   async (req, res, next) => {
     try {
       // Check if user owns the contribution or is admin
@@ -223,7 +224,7 @@ const canVerify = (user) => {
 router.post(
   '/:id/verify',
   authenticate,
-  validate({ body: verifyContributionSchema }),
+  validate(z.object({ body: verifyContributionSchema })),
   async (req, res, next) => {
     try {
       // Check permissions

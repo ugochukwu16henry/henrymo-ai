@@ -5,6 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
+const { z } = require('zod');
 const paymentService = require('../services/paymentService');
 const subscriptionService = require('../services/subscriptionService');
 const { authenticate } = require('../middleware/auth');
@@ -22,7 +23,7 @@ const logger = require('../utils/logger');
 router.post(
   '/subscription',
   authenticate,
-  validate({ body: createSubscriptionSchema }),
+  validate(z.object({ body: createSubscriptionSchema })),
   async (req, res, next) => {
     try {
       const { tier, billingPeriod, paymentMethodId } = req.body;
@@ -103,7 +104,7 @@ router.post(
 router.post(
   '/subscription/:id/cancel',
   authenticate,
-  validate({ body: cancelSubscriptionSchema }),
+  validate(z.object({ body: cancelSubscriptionSchema })),
   async (req, res, next) => {
     try {
       const subscription = await subscriptionService.getSubscriptionById(req.params.id);

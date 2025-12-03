@@ -5,6 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
+const { z } = require('zod');
 const streetService = require('../services/streetService');
 const locationService = require('../services/locationService');
 const { authenticate } = require('../middleware/auth');
@@ -23,7 +24,7 @@ const logger = require('../utils/logger');
 router.post(
   '/',
   authenticate,
-  validate({ body: createStreetSchema }),
+  validate(z.object({ body: createStreetSchema })),
   async (req, res, next) => {
     try {
       // Verify country exists
@@ -74,7 +75,7 @@ router.post(
  * GET /api/content/streets
  * Search streets
  */
-router.get('/', authenticate, validate({ query: searchStreetsSchema }), async (req, res, next) => {
+router.get('/', authenticate, validate(z.object({ query: searchStreetsSchema })), async (req, res, next) => {
   try {
     const result = await streetService.searchStreets(req.query);
 
@@ -126,7 +127,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
 router.put(
   '/:id',
   authenticate,
-  validate({ body: updateStreetSchema }),
+  validate(z.object({ body: updateStreetSchema })),
   async (req, res, next) => {
     try {
       // Verify country if provided

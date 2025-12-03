@@ -5,6 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
+const { z } = require('zod');
 const invoiceService = require('../services/invoiceService');
 const paymentService = require('../services/paymentService');
 const subscriptionService = require('../services/subscriptionService');
@@ -24,7 +25,7 @@ const logger = require('../utils/logger');
 router.get(
   '/dashboard',
   authenticate,
-  validate({ query: getFinancialDashboardSchema }),
+  validate(z.object({ query: getFinancialDashboardSchema })),
   async (req, res, next) => {
     try {
       const { startDate, endDate } = req.query;
@@ -103,7 +104,7 @@ router.get(
 router.get(
   '/invoices',
   authenticate,
-  validate({ query: listInvoicesSchema }),
+  validate(z.object({ query: listInvoicesSchema })),
   async (req, res, next) => {
     try {
       const result = await invoiceService.listInvoices({

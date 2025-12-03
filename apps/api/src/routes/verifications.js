@@ -5,10 +5,11 @@
 
 const express = require('express');
 const router = express.Router();
+const { z } = require('zod');
 const verificationService = require('../services/verificationService');
 const contributionService = require('../services/contributionService');
 const { authenticate } = require('../middleware/auth');
-const { validate } = require('../middleware/validation');
+const { validate } = require('../middleware/validate');
 const {
   verifyContributionSchema,
   listVerificationsSchema,
@@ -30,7 +31,7 @@ const canVerify = (user) => {
 router.post(
   '/contributions/:id/verify',
   authenticate,
-  validate({ body: verifyContributionSchema }),
+  validate(z.object({ body: verifyContributionSchema })),
   async (req, res, next) => {
     try {
       // Check permissions
@@ -80,7 +81,7 @@ router.post(
 router.get(
   '/',
   authenticate,
-  validate({ query: listVerificationsSchema }),
+  validate(z.object({ query: listVerificationsSchema })),
   async (req, res, next) => {
     try {
       // If not admin/moderator, only show their own verifications
