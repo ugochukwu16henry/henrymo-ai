@@ -40,10 +40,10 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_role ON users(role);
-CREATE INDEX idx_users_subscription_tier ON users(subscription_tier);
-CREATE INDEX idx_users_created_at ON users(created_at);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_subscription_tier ON users(subscription_tier);
+CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
 
 -- ----------------------------------------------------------------------------
 -- Conversations Table
@@ -68,9 +68,9 @@ CREATE TABLE IF NOT EXISTS conversations (
     last_message_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_conversations_user_id ON conversations(user_id);
-CREATE INDEX idx_conversations_created_at ON conversations(created_at);
-CREATE INDEX idx_conversations_last_message_at ON conversations(last_message_at);
+CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_created_at ON conversations(created_at);
+CREATE INDEX IF NOT EXISTS idx_conversations_last_message_at ON conversations(last_message_at);
 
 -- ----------------------------------------------------------------------------
 -- Messages Table
@@ -88,9 +88,9 @@ CREATE TABLE IF NOT EXISTS messages (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_messages_conversation_id ON messages(conversation_id);
-CREATE INDEX idx_messages_created_at ON messages(created_at);
-CREATE INDEX idx_messages_role ON messages(role);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation_id ON messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at);
+CREATE INDEX IF NOT EXISTS idx_messages_role ON messages(role);
 
 -- ----------------------------------------------------------------------------
 -- AI Memory Table
@@ -111,11 +111,11 @@ CREATE TABLE IF NOT EXISTS ai_memory (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_ai_memory_user_id ON ai_memory(user_id);
-CREATE INDEX idx_ai_memory_content_type ON ai_memory(content_type);
-CREATE INDEX idx_ai_memory_is_pinned ON ai_memory(is_pinned);
-CREATE INDEX idx_ai_memory_tags ON ai_memory USING GIN(tags);
-CREATE INDEX idx_ai_memory_created_at ON ai_memory(created_at);
+CREATE INDEX IF NOT EXISTS idx_ai_memory_user_id ON ai_memory(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_memory_content_type ON ai_memory(content_type);
+CREATE INDEX IF NOT EXISTS idx_ai_memory_is_pinned ON ai_memory(is_pinned);
+CREATE INDEX IF NOT EXISTS idx_ai_memory_tags ON ai_memory USING GIN(tags);
+CREATE INDEX IF NOT EXISTS idx_ai_memory_created_at ON ai_memory(created_at);
 
 -- ----------------------------------------------------------------------------
 -- Code Analyses Table
@@ -132,10 +132,10 @@ CREATE TABLE IF NOT EXISTS code_analyses (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_code_analyses_user_id ON code_analyses(user_id);
-CREATE INDEX idx_code_analyses_type ON code_analyses(analysis_type);
-CREATE INDEX idx_code_analyses_language ON code_analyses(language);
-CREATE INDEX idx_code_analyses_created_at ON code_analyses(created_at);
+CREATE INDEX IF NOT EXISTS idx_code_analyses_user_id ON code_analyses(user_id);
+CREATE INDEX IF NOT EXISTS idx_code_analyses_type ON code_analyses(analysis_type);
+CREATE INDEX IF NOT EXISTS idx_code_analyses_language ON code_analyses(language);
+CREATE INDEX IF NOT EXISTS idx_code_analyses_created_at ON code_analyses(created_at);
 
 -- ----------------------------------------------------------------------------
 -- Debugging Sessions Table
@@ -150,9 +150,9 @@ CREATE TABLE IF NOT EXISTS debugging_sessions (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_debugging_sessions_user_id ON debugging_sessions(user_id);
-CREATE INDEX idx_debugging_sessions_language ON debugging_sessions(language);
-CREATE INDEX idx_debugging_sessions_created_at ON debugging_sessions(created_at);
+CREATE INDEX IF NOT EXISTS idx_debugging_sessions_user_id ON debugging_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_debugging_sessions_language ON debugging_sessions(language);
+CREATE INDEX IF NOT EXISTS idx_debugging_sessions_created_at ON debugging_sessions(created_at);
 
 -- ----------------------------------------------------------------------------
 -- Files Table
@@ -170,10 +170,10 @@ CREATE TABLE IF NOT EXISTS files (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_files_user_id ON files(user_id);
-CREATE INDEX idx_files_folder ON files(folder);
-CREATE INDEX idx_files_mime_type ON files(mime_type);
-CREATE INDEX idx_files_created_at ON files(created_at);
+CREATE INDEX IF NOT EXISTS idx_files_user_id ON files(user_id);
+CREATE INDEX IF NOT EXISTS idx_files_folder ON files(folder);
+CREATE INDEX IF NOT EXISTS idx_files_mime_type ON files(mime_type);
+CREATE INDEX IF NOT EXISTS idx_files_created_at ON files(created_at);
 
 -- ----------------------------------------------------------------------------
 -- Generated Images Table
@@ -192,9 +192,9 @@ CREATE TABLE IF NOT EXISTS generated_images (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_generated_images_user_id ON generated_images(user_id);
-CREATE INDEX idx_generated_images_style ON generated_images(style);
-CREATE INDEX idx_generated_images_created_at ON generated_images(created_at);
+CREATE INDEX IF NOT EXISTS idx_generated_images_user_id ON generated_images(user_id);
+CREATE INDEX IF NOT EXISTS idx_generated_images_style ON generated_images(style);
+CREATE INDEX IF NOT EXISTS idx_generated_images_created_at ON generated_images(created_at);
 
 -- ----------------------------------------------------------------------------
 -- Generated Videos Table
@@ -214,8 +214,8 @@ CREATE TABLE IF NOT EXISTS generated_videos (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_generated_videos_user_id ON generated_videos(user_id);
-CREATE INDEX idx_generated_videos_created_at ON generated_videos(created_at);
+CREATE INDEX IF NOT EXISTS idx_generated_videos_user_id ON generated_videos(user_id);
+CREATE INDEX IF NOT EXISTS idx_generated_videos_created_at ON generated_videos(created_at);
 
 -- ============================================================================
 -- STREETS PLATFORM TABLES
@@ -231,8 +231,8 @@ CREATE TABLE IF NOT EXISTS countries (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_countries_code ON countries(code);
-CREATE INDEX idx_countries_name ON countries(name);
+CREATE INDEX IF NOT EXISTS idx_countries_code ON countries(code);
+CREATE INDEX IF NOT EXISTS idx_countries_name ON countries(name);
 
 -- ----------------------------------------------------------------------------
 -- States Table
@@ -246,8 +246,8 @@ CREATE TABLE IF NOT EXISTS states (
     UNIQUE(country_id, code)
 );
 
-CREATE INDEX idx_states_country_id ON states(country_id);
-CREATE INDEX idx_states_name ON states(name);
+CREATE INDEX IF NOT EXISTS idx_states_country_id ON states(country_id);
+CREATE INDEX IF NOT EXISTS idx_states_name ON states(name);
 
 -- ----------------------------------------------------------------------------
 -- Cities Table
@@ -262,9 +262,9 @@ CREATE TABLE IF NOT EXISTS cities (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_cities_state_id ON cities(state_id);
-CREATE INDEX idx_cities_country_id ON cities(country_id);
-CREATE INDEX idx_cities_name ON cities(name);
+CREATE INDEX IF NOT EXISTS idx_cities_state_id ON cities(state_id);
+CREATE INDEX IF NOT EXISTS idx_cities_country_id ON cities(country_id);
+CREATE INDEX IF NOT EXISTS idx_cities_name ON cities(name);
 
 -- ----------------------------------------------------------------------------
 -- Streets Table
@@ -284,12 +284,12 @@ CREATE TABLE IF NOT EXISTS streets (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_streets_city_id ON streets(city_id);
-CREATE INDEX idx_streets_country_id ON streets(country_id);
-CREATE INDEX idx_streets_location ON streets USING GIST(
+CREATE INDEX IF NOT EXISTS idx_streets_city_id ON streets(city_id);
+CREATE INDEX IF NOT EXISTS idx_streets_country_id ON streets(country_id);
+CREATE INDEX IF NOT EXISTS idx_streets_location ON streets USING GIST(
     POINT(longitude, latitude)
 );
-CREATE INDEX idx_streets_name ON streets(name);
+CREATE INDEX IF NOT EXISTS idx_streets_name ON streets(name);
 
 -- ----------------------------------------------------------------------------
 -- Contributions Table
@@ -314,11 +314,11 @@ CREATE TABLE IF NOT EXISTS contributions (
     verified_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_contributions_user_id ON contributions(user_id);
-CREATE INDEX idx_contributions_street_id ON contributions(street_id);
-CREATE INDEX idx_contributions_status ON contributions(status);
-CREATE INDEX idx_contributions_created_at ON contributions(created_at);
-CREATE INDEX idx_contributions_location ON contributions USING GIST(
+CREATE INDEX IF NOT EXISTS idx_contributions_user_id ON contributions(user_id);
+CREATE INDEX IF NOT EXISTS idx_contributions_street_id ON contributions(street_id);
+CREATE INDEX IF NOT EXISTS idx_contributions_status ON contributions(status);
+CREATE INDEX IF NOT EXISTS idx_contributions_created_at ON contributions(created_at);
+CREATE INDEX IF NOT EXISTS idx_contributions_location ON contributions USING GIST(
     POINT(longitude, latitude)
 );
 
@@ -342,8 +342,8 @@ CREATE TABLE IF NOT EXISTS images (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_images_contribution_id ON images(contribution_id);
-CREATE INDEX idx_images_created_at ON images(created_at);
+CREATE INDEX IF NOT EXISTS idx_images_contribution_id ON images(contribution_id);
+CREATE INDEX IF NOT EXISTS idx_images_created_at ON images(created_at);
 
 -- ----------------------------------------------------------------------------
 -- Verifications Table
@@ -361,10 +361,10 @@ CREATE TABLE IF NOT EXISTS verifications (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_verifications_contribution_id ON verifications(contribution_id);
-CREATE INDEX idx_verifications_verifier_id ON verifications(verifier_id);
-CREATE INDEX idx_verifications_verdict ON verifications(verdict);
-CREATE INDEX idx_verifications_created_at ON verifications(created_at);
+CREATE INDEX IF NOT EXISTS idx_verifications_contribution_id ON verifications(contribution_id);
+CREATE INDEX IF NOT EXISTS idx_verifications_verifier_id ON verifications(verifier_id);
+CREATE INDEX IF NOT EXISTS idx_verifications_verdict ON verifications(verdict);
+CREATE INDEX IF NOT EXISTS idx_verifications_created_at ON verifications(created_at);
 
 -- ============================================================================
 -- FINANCIAL SYSTEM TABLES
@@ -395,9 +395,9 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
-CREATE INDEX idx_subscriptions_status ON subscriptions(status);
-CREATE INDEX idx_subscriptions_stripe_subscription_id ON subscriptions(stripe_subscription_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe_subscription_id ON subscriptions(stripe_subscription_id);
 
 -- ----------------------------------------------------------------------------
 -- Payments Table
@@ -421,11 +421,11 @@ CREATE TABLE IF NOT EXISTS payments (
     completed_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_payments_user_id ON payments(user_id);
-CREATE INDEX idx_payments_subscription_id ON payments(subscription_id);
-CREATE INDEX idx_payments_status ON payments(status);
-CREATE INDEX idx_payments_stripe_payment_intent_id ON payments(stripe_payment_intent_id);
-CREATE INDEX idx_payments_created_at ON payments(created_at);
+CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
+CREATE INDEX IF NOT EXISTS idx_payments_subscription_id ON payments(subscription_id);
+CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status);
+CREATE INDEX IF NOT EXISTS idx_payments_stripe_payment_intent_id ON payments(stripe_payment_intent_id);
+CREATE INDEX IF NOT EXISTS idx_payments_created_at ON payments(created_at);
 
 -- ----------------------------------------------------------------------------
 -- Payout Requests Table
@@ -447,9 +447,9 @@ CREATE TABLE IF NOT EXISTS payout_requests (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_payout_requests_user_id ON payout_requests(user_id);
-CREATE INDEX idx_payout_requests_status ON payout_requests(status);
-CREATE INDEX idx_payout_requests_created_at ON payout_requests(created_at);
+CREATE INDEX IF NOT EXISTS idx_payout_requests_user_id ON payout_requests(user_id);
+CREATE INDEX IF NOT EXISTS idx_payout_requests_status ON payout_requests(status);
+CREATE INDEX IF NOT EXISTS idx_payout_requests_created_at ON payout_requests(created_at);
 
 -- ============================================================================
 -- ADMIN SYSTEM TABLES
@@ -474,10 +474,10 @@ CREATE TABLE IF NOT EXISTS admin_invitations (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_admin_invitations_email ON admin_invitations(email);
-CREATE INDEX idx_admin_invitations_token ON admin_invitations(token);
-CREATE INDEX idx_admin_invitations_invited_by ON admin_invitations(invited_by);
-CREATE INDEX idx_admin_invitations_expires_at ON admin_invitations(expires_at);
+CREATE INDEX IF NOT EXISTS idx_admin_invitations_email ON admin_invitations(email);
+CREATE INDEX IF NOT EXISTS idx_admin_invitations_token ON admin_invitations(token);
+CREATE INDEX IF NOT EXISTS idx_admin_invitations_invited_by ON admin_invitations(invited_by);
+CREATE INDEX IF NOT EXISTS idx_admin_invitations_expires_at ON admin_invitations(expires_at);
 
 -- ----------------------------------------------------------------------------
 -- Audit Logs Table
@@ -494,11 +494,11 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
-CREATE INDEX idx_audit_logs_action ON audit_logs(action);
-CREATE INDEX idx_audit_logs_resource_type ON audit_logs(resource_type);
-CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
-CREATE INDEX idx_audit_logs_resource ON audit_logs(resource_type, resource_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_resource_type ON audit_logs(resource_type);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_resource ON audit_logs(resource_type, resource_id);
 
 -- ============================================================================
 -- PLUGIN SYSTEM TABLES
@@ -527,10 +527,10 @@ CREATE TABLE IF NOT EXISTS plugins (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_plugins_developer_id ON plugins(developer_id);
-CREATE INDEX idx_plugins_is_active ON plugins(is_active);
-CREATE INDEX idx_plugins_is_verified ON plugins(is_verified);
-CREATE INDEX idx_plugins_rating_average ON plugins(rating_average);
+CREATE INDEX IF NOT EXISTS idx_plugins_developer_id ON plugins(developer_id);
+CREATE INDEX IF NOT EXISTS idx_plugins_is_active ON plugins(is_active);
+CREATE INDEX IF NOT EXISTS idx_plugins_is_verified ON plugins(is_verified);
+CREATE INDEX IF NOT EXISTS idx_plugins_rating_average ON plugins(rating_average);
 
 -- ----------------------------------------------------------------------------
 -- User Plugins Table
@@ -545,8 +545,8 @@ CREATE TABLE IF NOT EXISTS user_plugins (
     UNIQUE(user_id, plugin_id)
 );
 
-CREATE INDEX idx_user_plugins_user_id ON user_plugins(user_id);
-CREATE INDEX idx_user_plugins_plugin_id ON user_plugins(plugin_id);
+CREATE INDEX IF NOT EXISTS idx_user_plugins_user_id ON user_plugins(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_plugins_plugin_id ON user_plugins(plugin_id);
 
 -- ============================================================================
 -- API KEYS TABLE
@@ -571,9 +571,9 @@ CREATE TABLE IF NOT EXISTS api_keys (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_api_keys_user_id ON api_keys(user_id);
-CREATE INDEX idx_api_keys_key_hash ON api_keys(key_hash);
-CREATE INDEX idx_api_keys_is_active ON api_keys(is_active);
+CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
+CREATE INDEX IF NOT EXISTS idx_api_keys_key_hash ON api_keys(key_hash);
+CREATE INDEX IF NOT EXISTS idx_api_keys_is_active ON api_keys(is_active);
 
 -- ============================================================================
 -- FUNCTIONS AND TRIGGERS
@@ -650,6 +650,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_conversation_stats_trigger ON messages;
 CREATE TRIGGER update_conversation_stats_trigger
     AFTER INSERT ON messages
     FOR EACH ROW

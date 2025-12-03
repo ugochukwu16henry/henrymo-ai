@@ -6,7 +6,7 @@
  */
 
 const socialMediaService = require('../../services/socialMediaService');
-const logger = require('../../../utils/logger');
+const logger = require('../../utils/logger');
 
 class ChatbotSocialIntegration {
   /**

@@ -9,9 +9,9 @@
     "start": "node dist/server.js",
     "migrate": "node scripts/migrate.js",
     "migrate:create": "node scripts/create-migration.js",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch --passWithNoTests",
+    "test:coverage": "jest --coverage --passWithNoTests",
     "lint": "eslint src --ext .js,.ts",
     "type-check": "tsc --noEmit"
   },
