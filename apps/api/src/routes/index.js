@@ -64,6 +64,7 @@ router.use('/training', trainingRoutes); // Stage 8
 router.use('/monitoring', monitoringRoutes); // Stage 8
 router.use('/console', consoleRoutes); // Stage 8
 router.use('/social-media', socialMediaRoutes); // Social Media Management
+router.use('/api-keys', apiKeysRoutes); // API Keys Management
 
 // API root route
 router.get('/', (req, res) => {
@@ -97,6 +98,7 @@ router.get('/', (req, res) => {
       monitoring: '/api/monitoring',
       console: '/api/console',
       socialMedia: '/api/social-media',
+      apiKeys: '/api/api-keys',
       health: '/api/health',
       info: '/api/info',
     },
