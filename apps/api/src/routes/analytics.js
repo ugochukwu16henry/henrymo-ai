@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const analyticsService = require('../services/analyticsService');
 const { authenticate } = require('../middleware/auth');
-const { validate } = require('../middleware/validation');
+const { validate } = require('../middleware/validate');
 const logger = require('../utils/logger');
 
 /**

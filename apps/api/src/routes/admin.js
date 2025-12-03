@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const adminService = require('../services/adminService');
 const { authenticate, authorize } = require('../middleware/auth');
-const { validate } = require('../middleware/validation');
+const { validate } = require('../middleware/validate');
 const {
   updateUserRoleSchema,
   createInvitationSchema,

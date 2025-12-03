@@ -8,7 +8,7 @@ const router = express.Router();
 const streetService = require('../services/streetService');
 const locationService = require('../services/locationService');
 const { authenticate } = require('../middleware/auth');
-const { validate } = require('../middleware/validation');
+const { validate } = require('../middleware/validate');
 const {
   createStreetSchema,
   updateStreetSchema,

@@ -10,7 +10,7 @@ const contributionService = require('../services/contributionService');
 const imageProcessingService = require('../services/imageProcessingService');
 const verificationService = require('../services/verificationService');
 const { authenticate } = require('../middleware/auth');
-const { validate } = require('../middleware/validation');
+const { validate } = require('../middleware/validate');
 const {
   createContributionSchema,
   updateContributionSchema,

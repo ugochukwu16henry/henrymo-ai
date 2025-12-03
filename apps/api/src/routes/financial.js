@@ -9,7 +9,7 @@ const invoiceService = require('../services/invoiceService');
 const paymentService = require('../services/paymentService');
 const subscriptionService = require('../services/subscriptionService');
 const { authenticate } = require('../middleware/auth');
-const { validate } = require('../middleware/validation');
+const { validate } = require('../middleware/validate');
 const {
   listInvoicesSchema,
   getFinancialDashboardSchema,
