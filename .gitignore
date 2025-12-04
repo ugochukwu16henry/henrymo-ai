@@ -5,7 +5,7 @@ node_modules/
 
 # Testing
 coverage/
-.nyc_output/
+*.log
 
 # Production
 build/
@@ -19,61 +19,55 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
-.env*.local
 
-# Logs
-logs/
-*.log
+# Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-# OS
-.DS_Store
+# IDE
+.vscode/
+.idea/
 *.swp
 *.swo
 *~
+
+# OS
+.DS_Store
 Thumbs.db
 
-# IDE
-.idea/
-.vscode/
-*.sublime-project
-*.sublime-workspace
-*.code-workspace
-
-# Temporary files
-tmp/
-temp/
-*.tmp
+# Docker
+docker-compose.override.yml
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
 
-# Generated files
-generated-images/
-generated-videos/
-temp-frames/
+# Temporary files
+*.tmp
+*.temp
+.cache/
 
-# AWS
-.aws-sam/
+
+# Node
+node_modules/
+pnpm-lock.yaml
+*.log
+
+# Env
+.env
+.env.local
+
+# Build artefacts
+dist/
+.next/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Docker
-.dockerignore
-
-# Misc
-.cache/
-.parcel-cache/
-.vercel
-.railway
-
-# TypeScript
-*.tsbuildinfo
-
-# pnpm
-.pnpm-store/
-
+docker-compose.override.yml

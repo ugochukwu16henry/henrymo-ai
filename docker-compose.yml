@@ -1,9 +1,9 @@
-version: '3.8'
+version: "3.9"
 
 services:
   postgres:
-    image: postgres:15-alpine
-    container_name: henmo-ai-postgres
+    image: postgres:15
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -11,33 +11,17 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./packages/database/init.sql:/docker-entrypoint-initdb.d/init.sql
-    command: >
-      postgres
-      -c listen_addresses=*
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - henmo-network
+      - pgdata:/var/lib/postgresql/data
 
-  # Redis (for caching and sessions - will be added later)
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: henmo-ai-redis
-  #   ports:
-  #     - "6379:6379"
-  #   networks:
-  #     - henmo-network
+  api:
+    build: ./apps/api
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    depends_on:
+      - postgres
+    ports:
+      - "4000:4000"
 
 volumes:
-  postgres_data:
-    driver: local
-
-networks:
-  henmo-network:
-    driver: bridge
-
+  pgdata:

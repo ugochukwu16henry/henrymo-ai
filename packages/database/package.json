@@ -1,20 +1,5 @@
 {
-  "name": "@henrymo-ai/database",
-  "version": "1.0.0",
-  "description": "Database schema and migrations for HenryMo AI",
-  "main": "schema.sql",
-  "scripts": {
-    "schema": "psql -f schema.sql",
-    "migrate": "node scripts/migrate.js",
-    "seed": "node scripts/seed.js"
-  },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "dotenv": "^16.4.1",
-    "pg": "^8.11.3",
-    "uuid": "^9.0.1"
-  },
-  "devDependencies": {
-    "@types/pg": "^8.10.9"
-  }
+  "name": "@henmo/database",
+  "private": true,
+  "version": "1.0.0"
 }
